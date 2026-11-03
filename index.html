@@ -549,10 +549,35 @@
             modalOverlay.classList.remove('active');
         }
 
-        /* Tutup modal jika tombol Esc ditekan */
+        /* Keyboard Shortcuts Global */
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-                closeSettings();
+            // Abaikan shortcut jika sedang aktif mengetik di dalam input modal
+            const activeElement = document.activeElement;
+            const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
+
+            if (modalOverlay.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    closeSettings();
+                }
+                return; // Jangan jalankan shortcut timer saat modal terbuka
+            }
+
+            if (isInput) return;
+
+            // Spasi: Mulai / Jeda Timer
+            if (e.code === 'Space') {
+                e.preventDefault();
+                toggleTimer();
+            }
+            // Tombol F: Toggle Fullscreen
+            else if (e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+            // Tombol R: Reset Timer
+            else if (e.key.toLowerCase() === 'r') {
+                e.preventDefault();
+                resetTimer();
             }
         });
 
