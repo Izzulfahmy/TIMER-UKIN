@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timer Hitung Mundur</title>
+    <title>Timer Ukin - Profesional</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,33 +24,199 @@
             user-select: none;
         }
 
-        /* Form Input Waktu */
-        .controls {
+        /* Label Sintaks Pembelajaran */
+        .sintaks-title {
             position: absolute;
-            top: 24px;
+            top: 5vh;
+            font-size: 3vw;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+            color: #000000;
+        }
+
+        /* Display Utama Timer (Jam:Menit:Detik) Fit Layar */
+        .timer-display {
+            font-size: 19vw;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Tombol Floating untuk Membuka Pengaturan & Control */
+        .floating-controls {
+            position: absolute;
+            bottom: 4vh;
             display: flex;
-            align-items: center;
             gap: 12px;
             z-index: 10;
+            opacity: 0.2;
+            transition: opacity 0.3s ease;
         }
 
-        .input-group {
+        .floating-controls:hover {
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: 2.5px solid #000000;
+            background-color: #000000;
+            color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .btn:hover {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        .btn-outline:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Modal Pengaturan */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 6px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
-        input[type="number"] {
-            width: 70px;
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: #ffffff;
+            border: 3px solid #000000;
+            border-radius: 12px;
+            padding: 28px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 8px;
+        }
+
+        .input-group-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .input-field label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        input[type="number"], input[type="text"] {
             padding: 8px 10px;
             font-size: 1rem;
             font-weight: 600;
             border: 2px solid #000000;
             border-radius: 6px;
             outline: none;
-            text-align: center;
             background: #ffffff;
             color: #000000;
+        }
+
+        input[type="number"] {
+            text-align: center;
+        }
+
+        /* Interval / Sintaks Item list */
+        .interval-list {
+            margin-top: 16px;
+            margin-bottom: 20px;
+        }
+
+        .interval-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            background: #f8f8f8;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .interval-item input[type="text"] {
+            flex: 2;
+        }
+
+        .interval-item input[type="number"] {
+            width: 55px;
+        }
+
+        .btn-del {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: #000000;
         }
 
         /* Menyembunyikan panah input number */
@@ -62,89 +228,93 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-
-        label {
-            font-size: 0.875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        button {
-            padding: 8px 18px;
-            font-size: 1rem;
-            font-weight: 700;
-            border: 2px solid #000000;
-            background-color: #000000;
-            color: #ffffff;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            background-color: #ffffff;
-            color: #000000;
-        }
-
-        button:active {
-            transform: scale(0.97);
-        }
-
-        /* Display Timer Besar Fit Layar */
-        .timer-display {
-            font-size: 26vw;
-            font-weight: 900;
-            line-height: 1;
-            letter-spacing: -0.04em;
-            font-variant-numeric: tabular-nums;
-            text-align: center;
-            width: 100%;
-        }
-
-        /* Menyembunyikan kontrol saat timer berjalan agar lebih bersih (opsional) */
-        body.is-running .controls {
-            opacity: 0.2;
-            transition: opacity 0.3s ease;
-        }
-        body.is-running .controls:hover {
-            opacity: 1;
-        }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <div class="input-group">
-            <input type="number" id="minutes" min="0" max="999" value="05" placeholder="00">
-            <label for="minutes">Menit</label>
-        </div>
-        <div class="input-group">
-            <input type="number" id="seconds" min="0" max="59" value="00" placeholder="00">
-            <label for="seconds">Detik</label>
-        </div>
-        <button id="startBtn" onclick="toggleTimer()">Mulai</button>
-        <button onclick="resetTimer()">Reset</button>
+    <!-- Label Sintaks Aktif -->
+    <div class="sintaks-title" id="sintaksTitle"></div>
+
+    <!-- Tampilan Utama Jam:Menit:Detik -->
+    <div class="timer-display" id="display">00:05:00</div>
+
+    <!-- Kontrol Bawah (Hover untuk memperjelas) -->
+    <div class="floating-controls">
+        <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
+        <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
+        <button class="btn btn-outline" onclick="openSettings()">Pengaturan</button>
     </div>
 
-    <div class="timer-display" id="display">05:00</div>
+    <!-- Modal Pengaturan -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2>Pengaturan Timer Ukin</h2>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="enableIntervals" onchange="toggleIntervalMode()">
+                <label for="enableIntervals">Gunakan Sintaks / Interval Beruntun</label>
+            </div>
+
+            <!-- Mode Manual Biasa -->
+            <div id="singleTimerSettings">
+                <div class="input-group-row">
+                    <div class="input-field">
+                        <label>Jam</label>
+                        <input type="number" id="hours" min="0" max="99" value="00">
+                    </div>
+                    <div class="input-field">
+                        <label>Menit</label>
+                        <input type="number" id="minutes" min="0" max="59" value="05">
+                    </div>
+                    <div class="input-field">
+                        <label>Detik</label>
+                        <input type="number" id="seconds" min="0" max="59" value="00">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mode Interval Sintaks -->
+            <div id="intervalTimerSettings" style="display: none;">
+                <label style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Daftar Sintaks / Tahapan:</label>
+                <div class="interval-list" id="intervalContainer">
+                    <!-- Item interval akan dirender otomatis via JavaScript -->
+                </div>
+                <button class="btn btn-outline" style="width: 100%; font-size: 0.9rem; padding: 6px;" onclick="addIntervalItem()">+ Tambah Sintaks</button>
+            </div>
+
+            <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn" onclick="saveSettings()">Simpan & Terapkan</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let countdown;
         let totalSeconds = 300;
         let isRunning = false;
+        let isIntervalMode = false;
+        
+        let intervals = [
+            { name: "Pendahuluan", h: 0, m: 5, s: 0 },
+            { name: "Sintaks 1: Orientasi Masalah", h: 0, m: 10, s: 0 },
+            { name: "Sintaks 2: Pengorganisasian", h: 0, m: 15, s: 0 },
+            { name: "Penutup", h: 0, m: 5, s: 0 }
+        ];
+        let currentIntervalIndex = 0;
 
         const displayEl = document.getElementById('display');
+        const sintaksTitleEl = document.getElementById('sintaksTitle');
         const startBtn = document.getElementById('startBtn');
-        const minutesInput = document.getElementById('minutes');
-        const secondsInput = document.getElementById('seconds');
+        const modalOverlay = document.getElementById('modalOverlay');
 
         function updateDisplay(seconds) {
-            const mins = Math.floor(seconds / 60);
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
-            const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            displayEl.textContent = formattedTime;
-            document.title = `${formattedTime} - Timer`;
+            
+            const formatted = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            displayEl.textContent = formatted;
+            document.title = `${formatted} - Timer Ukin`;
         }
 
         function toggleTimer() {
@@ -157,18 +327,10 @@
 
         function startTimer() {
             if (!isRunning) {
-                // Ambil nilai input jika timer baru dimulai dari posisi diam
-                if (totalSeconds <= 0 || displayEl.textContent === "00:00") {
-                    const mins = parseInt(minutesInput.value) || 0;
-                    const secs = parseInt(secondsInput.value) || 0;
-                    totalSeconds = (mins * 60) + secs;
-                }
-
                 if (totalSeconds <= 0) return;
 
                 isRunning = true;
                 startBtn.textContent = 'Jeda';
-                document.body.classList.add('is-running');
 
                 countdown = setInterval(() => {
                     totalSeconds--;
@@ -177,9 +339,16 @@
                     if (totalSeconds <= 0) {
                         clearInterval(countdown);
                         isRunning = false;
-                        startBtn.textContent = 'Mulai';
-                        document.body.classList.remove('is-running');
-                        alert('Waktu Habis!');
+                        
+                        // Cek jika mode interval aktif dan masih ada sintaks berikutnya
+                        if (isIntervalMode && currentIntervalIndex < intervals.length - 1) {
+                            currentIntervalIndex++;
+                            loadInterval(currentIntervalIndex);
+                            startTimer();
+                        } else {
+                            startBtn.textContent = 'Mulai';
+                            alert('Seluruh Rangkaian Waktu Habis!');
+                        }
                     }
                 }, 1000);
             }
@@ -189,35 +358,83 @@
             clearInterval(countdown);
             isRunning = false;
             startBtn.textContent = 'Lanjut';
-            document.body.classList.remove('is-running');
         }
 
         function resetTimer() {
             clearInterval(countdown);
             isRunning = false;
             startBtn.textContent = 'Mulai';
-            document.body.classList.remove('is-running');
             
-            const mins = parseInt(minutesInput.value) || 0;
-            const secs = parseInt(secondsInput.value) || 0;
-            totalSeconds = (mins * 60) + secs;
+            if (isIntervalMode) {
+                currentIntervalIndex = 0;
+                loadInterval(currentIntervalIndex);
+            } else {
+                const h = parseInt(document.getElementById('hours').value) || 0;
+                const m = parseInt(document.getElementById('minutes').value) || 0;
+                const s = parseInt(document.getElementById('seconds').value) || 0;
+                totalSeconds = (h * 3600) + (m * 60) + s;
+                sintaksTitleEl.textContent = "";
+                updateDisplay(totalSeconds);
+            }
+        }
+
+        function loadInterval(index) {
+            const item = intervals[index];
+            totalSeconds = (item.h * 3600) + (item.m * 60) + item.s;
+            sintaksTitleEl.textContent = item.name;
             updateDisplay(totalSeconds);
         }
 
-        // Format otomatis input agar selalu 2 digit saat diubah
-        [minutesInput, secondsInput].forEach(input => {
-            input.addEventListener('change', () => {
-                if (!isRunning) {
-                    let val = parseInt(input.value) || 0;
-                    if (input.id === 'seconds' && val > 59) val = 59;
-                    input.value = String(val).padStart(2, '0');
-                    resetTimer();
-                }
-            });
-        });
+        /* Modal & Settings Logic */
+        function openSettings() {
+            pauseTimer();
+            renderIntervalInputs();
+            modalOverlay.classList.add('active');
+        }
 
-        // Inisialisasi tampilan awal
-        updateDisplay(totalSeconds);
+        function toggleIntervalMode() {
+            const checked = document.getElementById('enableIntervals').checked;
+            document.getElementById('singleTimerSettings').style.display = checked ? 'none' : 'block';
+            document.getElementById('intervalTimerSettings').style.display = checked ? 'block' : 'none';
+        }
+
+        function renderIntervalInputs() {
+            const container = document.getElementById('intervalContainer');
+            container.innerHTML = '';
+            intervals.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'interval-item';
+                div.innerHTML = `
+                    <input type="text" value="${item.name}" placeholder="Nama Sintaks" onchange="intervals[${idx}].name = this.value">
+                    <input type="number" value="${item.h}" min="0" placeholder="J" onchange="intervals[${idx}].h = parseInt(this.value)||0">
+                    <input type="number" value="${item.m}" min="0" max="59" placeholder="M" onchange="intervals[${idx}].m = parseInt(this.value)||0">
+                    <input type="number" value="${item.s}" min="0" max="59" placeholder="D" onchange="intervals[${idx}].s = parseInt(this.value)||0">
+                    <button class="btn-del" onclick="removeIntervalItem(${idx})">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addIntervalItem() {
+            intervals.push({ name: `Sintaks ${intervals.length + 1}`, h: 0, m: 10, s: 0 });
+            renderIntervalInputs();
+        }
+
+        function removeIntervalItem(idx) {
+            if (intervals.length > 1) {
+                intervals.splice(idx, 1);
+                renderIntervalInputs();
+            }
+        }
+
+        function saveSettings() {
+            isIntervalMode = document.getElementById('enableIntervals').checked;
+            modalOverlay.classList.remove('active');
+            resetTimer();
+        }
+
+        // Inisialisasi awal
+        resetTimer();
     </script>
 </body>
 </html>
