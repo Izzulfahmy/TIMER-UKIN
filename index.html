@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timer Ukin - Layar Penuh</title>
+    <title>Timer Ukin - Dual Kontras</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,8 +13,6 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #ffffff;
-            color: #000000;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -22,10 +20,10 @@
             align-items: center;
             overflow: hidden;
             user-select: none;
-            padding: 2vh 0;
+            background-color: #ffffff;
         }
 
-        /* Seksi Atas: Timer Sintaks Aktif */
+        /* Seksi Atas: Timer Sintaks (Background Putih, Teks Hitam) */
         .section-interval {
             display: flex;
             flex-direction: column;
@@ -33,11 +31,14 @@
             justify-content: center;
             flex: 1;
             width: 100%;
+            background-color: #ffffff;
+            color: #000000;
+            padding: 2vh 0;
         }
 
         .sintaks-title {
-            font-size: 3.5vw;
-            font-weight: 800;
+            font-size: 3.8vw;
+            font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             text-align: center;
@@ -47,7 +48,7 @@
             width: 90%;
         }
 
-        /* Seksi Bawah: Timer Keseluruhan */
+        /* Seksi Bawah: Timer Keseluruhan (Background Hitam Kontras, Teks Putih, Tanpa Tulisan) */
         .section-total {
             display: flex;
             flex-direction: column;
@@ -55,23 +56,14 @@
             justify-content: center;
             flex: 1;
             width: 100%;
+            background-color: #000000;
+            color: #ffffff;
             border-top: 4px solid #000000;
         }
 
-        .total-title {
-            font-size: 3.5vw;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            text-align: center;
-            color: #000000;
-            margin-bottom: 0.5vh;
-            line-height: 1.1;
-        }
-
-        /* Ukuran Angka Sama Besar (Fit Layar) */
+        /* Ukuran Angka Sama Besar Raksasa (Fit Layar) */
         .timer-display-large {
-            font-size: 13.5vw;
+            font-size: 15vw;
             font-weight: 900;
             line-height: 0.95;
             letter-spacing: -0.04em;
@@ -80,7 +72,7 @@
             width: 100%;
         }
 
-        /* Tombol Floating Kontrol & Pengaturan */
+        /* Tombol Floating Kontrol & Pengaturan (Melayang di Pojok Kanan Bawah) */
         .floating-controls {
             position: absolute;
             bottom: 1.5vh;
@@ -100,27 +92,28 @@
             padding: 6px 14px;
             font-size: 0.85rem;
             font-weight: 700;
-            border: 2px solid #000000;
-            background-color: #000000;
-            color: #ffffff;
+            border: 2px solid #ffffff;
+            background-color: #ffffff;
+            color: #000000;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
         .btn-outline {
-            background-color: #ffffff;
-            color: #000000;
+            background-color: transparent;
+            color: #ffffff;
+            border-color: #ffffff;
         }
 
         .btn:hover {
-            background-color: #333333;
-            color: #ffffff;
+            background-color: #dddddd;
+            color: #000000;
         }
 
         .btn-outline:hover {
-            background-color: #000000;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #000000;
         }
 
         .btn:active {
@@ -134,7 +127,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -151,6 +144,7 @@
 
         .modal {
             background: #ffffff;
+            color: #000000;
             border: 3px solid #000000;
             border-radius: 12px;
             padding: 24px;
@@ -158,7 +152,7 @@
             max-width: 520px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .modal h2 {
@@ -264,19 +258,18 @@
 </head>
 <body>
 
-    <!-- Bagian Atas: Sintaks Aktif -->
+    <!-- Bagian Atas: Timer Sintaks Aktif (Latar Putih, Angka Hitam) -->
     <div class="section-interval">
         <div class="sintaks-title" id="sintaksTitle">KEGIATAN PENDAHULUAN</div>
         <div class="timer-display-large" id="display">00:05:00</div>
     </div>
 
-    <!-- Bagian Bawah: Total Keseluruhan -->
+    <!-- Bagian Bawah: Waktu Keseluruhan (Latar Hitam Kontras, Angka Putih, Tanpa Judul) -->
     <div class="section-total" id="sectionTotal">
-        <div class="total-title">WAKTU KESELURUHAN</div>
         <div class="timer-display-large" id="totalDisplay">00:35:00</div>
     </div>
 
-    <!-- Kontrol Melayang (Sangat Samar di Pojok Kanan Bawah) -->
+    <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
     <div class="floating-controls">
         <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
         <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
@@ -320,11 +313,11 @@
             <div id="intervalTimerSettings">
                 <label style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Daftar Sintaks / Tahapan:</label>
                 <div class="interval-list" id="intervalContainer"></div>
-                <button class="btn btn-outline" style="width: 100%; font-size: 0.85rem; padding: 6px;" onclick="addIntervalItem()">+ Tambah Sintaks</button>
+                <button class="btn btn-outline" style="background:#000; color:#fff; width: 100%; font-size: 0.85rem; padding: 6px;" onclick="addIntervalItem()">+ Tambah Sintaks</button>
             </div>
 
             <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="btn" onclick="saveSettings()">Simpan & Terapkan</button>
+                <button class="btn" style="background:#000; color:#fff;" onclick="saveSettings()">Simpan & Terapkan</button>
             </div>
         </div>
     </div>
