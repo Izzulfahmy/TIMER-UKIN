@@ -415,15 +415,15 @@
         let targetEndTimeInterval = null;
         let targetEndTimeGrandTotal = null;
 
-        // Template default disesuaikan dengan dokumen pembelajaran Ukin (Total 75 Menit / 01:15:00)
+        // Template default sesuai alokasi RPP Ukin (Total 75 Menit)[cite: 1]
         let intervals = [
-            { name: "Kegiatan Awal", h: 0, m: 10, s: 0 },
-            { name: "Sintak 1: Orientasi Murid pada Masalah", h: 0, m: 10, s: 0 },
-            { name: "Sintak 2: Mengorganisasi Murid untuk Belajar", h: 0, m: 5, s: 0 },
-            { name: "Sintak 3: Membimbing Penyelidikan Individu maupun Kelompok", h: 0, m: 15, s: 0 },
-            { name: "Sintak 4: Mengembangkan dan Menyajikan Hasil Karya", h: 0, m: 12, s: 0 },
-            { name: "Sintak 5: Menganalisis dan Evaluasi Proses Pemecahan Masalah", h: 0, m: 8, s: 0 },
-            { name: "Kegiatan Penutup", h: 0, m: 10, s: 0 }
+            { name: "Kegiatan Awal", h: 0, m: 10, s: 0 },[cite: 1]
+            { name: "Sintak 1: Orientasi Murid pada Masalah", h: 0, m: 10, s: 0 },[cite: 1]
+            { name: "Sintak 2: Mengorganisasi Murid untuk Belajar", h: 0, m: 5, s: 0 },[cite: 1]
+            { name: "Sintak 3: Membimbing Penyelidikan Individu maupun Kelompok", h: 0, m: 15, s: 0 },[cite: 1]
+            { name: "Sintak 4: Mengembangkan dan Menyajikan Hasil Karya", h: 0, m: 12, s: 0 },[cite: 1]
+            { name: "Sintak 5: Menganalisis dan Evaluasi Proses Pemecahan Masalah", h: 0, m: 8, s: 0 },[cite: 1]
+            { name: "Kegiatan Penutup", h: 0, m: 10, s: 0 }[cite: 1]
         ];
         let currentIntervalIndex = 0;
 
@@ -561,8 +561,8 @@
             }
         });
 
+        /* Membuka Pengaturan tanpa mem-pause timer yang sedang berjalan */
         function openSettings() {
-            pauseTimer();
             renderIntervalInputs();
             modalOverlay.classList.add('active');
         }
@@ -637,11 +637,14 @@
             }
         }
 
+        /* Menyimpan pengaturan dan hanya mereset jika timer sedang diam (tidak berjalan) */
         function saveSettings() {
             isIntervalMode = document.getElementById('enableIntervals').checked;
             toggleTotalTimerVisibility();
             closeSettings();
-            resetTimer();
+            if (!isRunning) {
+                resetTimer();
+            }
         }
 
         resetTimer();
