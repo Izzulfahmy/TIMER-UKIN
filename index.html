@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timer Ukin - Profesional</title>
+    <title>Timer Ukin - Layar Penuh</title>
     <style>
         * {
             box-sizing: border-box;
@@ -18,69 +18,75 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             overflow: hidden;
             user-select: none;
-            position: relative;
+            padding: 2vh 0;
         }
 
-        /* Label Sintaks Pembelajaran */
+        /* Seksi Atas: Timer Sintaks Aktif */
+        .section-interval {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+        }
+
         .sintaks-title {
-            position: absolute;
-            top: 4vh;
-            font-size: 3vw;
+            font-size: 3.5vw;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             text-align: center;
             color: #000000;
+            margin-bottom: 0.5vh;
+            line-height: 1.1;
             width: 90%;
         }
 
-        /* Display Utama Timer Sintaks (Jam:Menit:Detik) Fit Layar */
-        .timer-display {
-            font-size: 18vw;
+        /* Seksi Bawah: Timer Keseluruhan */
+        .section-total {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+            border-top: 4px solid #000000;
+        }
+
+        .total-title {
+            font-size: 3.5vw;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-align: center;
+            color: #000000;
+            margin-bottom: 0.5vh;
+            line-height: 1.1;
+        }
+
+        /* Ukuran Angka Sama Besar (Fit Layar) */
+        .timer-display-large {
+            font-size: 13.5vw;
             font-weight: 900;
-            line-height: 1;
+            line-height: 0.95;
             letter-spacing: -0.04em;
             font-variant-numeric: tabular-nums;
             text-align: center;
             width: 100%;
         }
 
-        /* Display Timer Keseluruhan (Bagian Bawah) */
-        .total-timer-container {
-            position: absolute;
-            bottom: 9vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .total-timer-label {
-            font-size: 0.85rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #666666;
-        }
-
-        .total-timer-display {
-            font-size: 2.8vw;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            font-variant-numeric: tabular-nums;
-            color: #000000;
-        }
-
-        /* Tombol Floating untuk Control & Pengaturan */
+        /* Tombol Floating Kontrol & Pengaturan */
         .floating-controls {
             position: absolute;
-            bottom: 2vh;
+            bottom: 1.5vh;
+            right: 2vw;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             z-index: 10;
             opacity: 0.15;
             transition: opacity 0.3s ease;
@@ -91,8 +97,8 @@
         }
 
         .btn {
-            padding: 6px 16px;
-            font-size: 0.9rem;
+            padding: 6px 14px;
+            font-size: 0.85rem;
             font-weight: 700;
             border: 2px solid #000000;
             background-color: #000000;
@@ -258,19 +264,19 @@
 </head>
 <body>
 
-    <!-- Label Sintaks Aktif -->
-    <div class="sintaks-title" id="sintaksTitle"></div>
-
-    <!-- Tampilan Utama Timer Sintaks (Jam:Menit:Detik) -->
-    <div class="timer-display" id="display">00:05:00</div>
-
-    <!-- Tampilan Timer Keseluruhan (Di Bawah) -->
-    <div class="total-timer-container" id="totalTimerContainer">
-        <span class="total-timer-label">Waktu Keseluruhan</span>
-        <span class="total-timer-display" id="totalDisplay">00:35:00</span>
+    <!-- Bagian Atas: Sintaks Aktif -->
+    <div class="section-interval">
+        <div class="sintaks-title" id="sintaksTitle">KEGIATAN PENDAHULUAN</div>
+        <div class="timer-display-large" id="display">00:05:00</div>
     </div>
 
-    <!-- Kontrol Bawah (Samar saat tidak di-hover) -->
+    <!-- Bagian Bawah: Total Keseluruhan -->
+    <div class="section-total" id="sectionTotal">
+        <div class="total-title">WAKTU KESELURUHAN</div>
+        <div class="timer-display-large" id="totalDisplay">00:35:00</div>
+    </div>
+
+    <!-- Kontrol Melayang (Sangat Samar di Pojok Kanan Bawah) -->
     <div class="floating-controls">
         <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
         <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
@@ -289,7 +295,7 @@
 
             <div class="checkbox-group">
                 <input type="checkbox" id="showTotalTimer" onchange="toggleTotalTimerVisibility()" checked>
-                <label for="showTotalTimer">Tampilkan Timer Keseluruhan di Bawah</label>
+                <label for="showTotalTimer">Tampilkan Waktu Keseluruhan di Bawah</label>
             </div>
 
             <!-- Mode Manual Biasa -->
@@ -328,10 +334,7 @@
         let isRunning = false;
         let isIntervalMode = true;
 
-        // Timer Sintaks Aktif
         let totalSeconds = 0;
-        
-        // Timer Keseluruhan
         let grandTotalSeconds = 0;
 
         let intervals = [
@@ -347,7 +350,7 @@
         const sintaksTitleEl = document.getElementById('sintaksTitle');
         const startBtn = document.getElementById('startBtn');
         const modalOverlay = document.getElementById('modalOverlay');
-        const totalTimerContainer = document.getElementById('totalTimerContainer');
+        const sectionTotal = document.getElementById('sectionTotal');
 
         function formatTime(seconds) {
             const hrs = Math.floor(seconds / 3600);
@@ -378,19 +381,16 @@
                 startBtn.textContent = 'Jeda';
 
                 countdown = setInterval(() => {
-                    // Kurangi timer sintaks aktif
                     if (totalSeconds > 0) {
                         totalSeconds--;
                     }
 
-                    // Kurangi timer keseluruhan
                     if (grandTotalSeconds > 0) {
                         grandTotalSeconds--;
                     }
 
                     updateDisplay();
 
-                    // Cek jika timer sintaks aktif habis
                     if (totalSeconds <= 0) {
                         if (isIntervalMode && currentIntervalIndex < intervals.length - 1) {
                             currentIntervalIndex++;
@@ -427,7 +427,7 @@
                 const s = parseInt(document.getElementById('seconds').value) || 0;
                 totalSeconds = (h * 3600) + (m * 60) + s;
                 grandTotalSeconds = totalSeconds;
-                sintaksTitleEl.textContent = "";
+                sintaksTitleEl.textContent = "TIMER UKIN";
                 updateDisplay();
             }
         }
@@ -445,7 +445,6 @@
             updateDisplay();
         }
 
-        /* Modal & Settings Logic */
         function openSettings() {
             pauseTimer();
             renderIntervalInputs();
@@ -460,7 +459,7 @@
 
         function toggleTotalTimerVisibility() {
             const checked = document.getElementById('showTotalTimer').checked;
-            totalTimerContainer.style.display = checked ? 'flex' : 'none';
+            sectionTotal.style.display = checked ? 'flex' : 'none';
         }
 
         function renderIntervalInputs() {
@@ -499,7 +498,6 @@
             resetTimer();
         }
 
-        // Inisialisasi awal
         resetTimer();
     </script>
 </body>
