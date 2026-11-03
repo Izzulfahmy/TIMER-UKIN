@@ -63,20 +63,20 @@
             transform: scale(0.92);
         }
 
-        /* Seksi Atas: Timer Sintaks (Background Putih, Teks Hitam) */
+        /* Seksi Atas: Timer Sintaks (Rasio 4 dari total 5) */
         .section-interval {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 1.2;
+            flex: 4;
             width: 100%;
             background-color: #ffffff;
             color: #000000;
             padding: 1vh 2vw;
         }
 
-        /* Judul Sintaks Diperbesar (6.5vw) */
+        /* Judul Sintaks */
         .sintaks-title {
             font-size: 6.5vw;
             font-weight: 900;
@@ -90,20 +90,20 @@
             word-wrap: break-word;
         }
 
-        /* Seksi Bawah: Timer Keseluruhan (Background Hitam Kontras, Teks Putih) */
+        /* Seksi Bawah: Timer Keseluruhan (Rasio 1 dari total 5 / Lebih Pendek) */
         .section-total {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 0.8;
+            flex: 1;
             width: 100%;
             background-color: #000000;
             color: #ffffff;
             border-top: 4px solid #000000;
         }
 
-        /* Ukuran Angka Sama Besar Raksasa Fit Layar */
+        /* Ukuran Angka Sama Besar Raksasa Fit Layar di Atas & Bawah */
         .timer-display-large {
             font-size: 13vw;
             font-weight: 900;
@@ -339,13 +339,13 @@
         </svg>
     </button>
 
-    <!-- Bagian Atas: Timer Sintaks Aktif -->
+    <!-- Bagian Atas: Timer Sintaks Aktif (Proporsi 4) -->
     <div class="section-interval">
         <div class="sintaks-title" id="sintaksTitle">KEGIATAN AWAL</div>
         <div class="timer-display-large" id="display">00:10:00</div>
     </div>
 
-    <!-- Bagian Bawah: Waktu Keseluruhan (Hitam Kontras, Tanpa Judul) -->
+    <!-- Bagian Bawah: Waktu Keseluruhan (Proporsi 1 / Lebih Pendek) -->
     <div class="section-total" id="sectionTotal">
         <div class="timer-display-large" id="totalDisplay">01:15:00</div>
     </div>
@@ -562,13 +562,11 @@
         });
 
         function openSettings() {
-            // PERBAIKAN: Tidak memanggil pauseTimer() agar timer tetap berjalan di latar belakang
             renderIntervalInputs();
             modalOverlay.classList.add('active');
         }
 
         function closeSettings() {
-            // PERBAIKAN: Hanya menutup modal tanpa mengubah status jalan/tidaknya timer
             modalOverlay.classList.remove('active');
         }
 
