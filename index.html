@@ -192,7 +192,7 @@
             border-radius: 12px;
             padding: 24px;
             width: 90%;
-            max-width: 520px;
+            max-width: 540px;
             max-height: 85vh;
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
@@ -333,7 +333,7 @@
 <body>
 
     <!-- Tombol Fullscreen (Pojok Kanan Atas) -->
-    <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Layar Penuh">
+    <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Layar Penuh (Tekan F)">
         <svg id="fullscreenIcon" viewBox="0 0 24 24">
             <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
         </svg>
@@ -341,13 +341,13 @@
 
     <!-- Bagian Atas: Timer Sintaks Aktif -->
     <div class="section-interval">
-        <div class="sintaks-title" id="sintaksTitle">KEGIATAN PENDAHULUAN</div>
-        <div class="timer-display-large" id="display">00:05:00</div>
+        <div class="sintaks-title" id="sintaksTitle">KEGIATAN AWAL</div>
+        <div class="timer-display-large" id="display">00:10:00</div>
     </div>
 
     <!-- Bagian Bawah: Waktu Keseluruhan (Hitam Kontras, Tanpa Judul) -->
     <div class="section-total" id="sectionTotal">
-        <div class="timer-display-large" id="totalDisplay">00:35:00</div>
+        <div class="timer-display-large" id="totalDisplay">01:15:00</div>
     </div>
 
     <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
@@ -378,11 +378,11 @@
                 <div class="input-group-row">
                     <div class="input-field">
                         <label>Jam</label>
-                        <input type="number" id="hours" min="0" max="99" value="00">
+                        <input type="number" id="hours" min="0" max="99" value="01">
                     </div>
                     <div class="input-field">
                         <label>Menit</label>
-                        <input type="number" id="minutes" min="0" max="59" value="35">
+                        <input type="number" id="minutes" min="0" max="59" value="15">
                     </div>
                     <div class="input-field">
                         <label>Detik</label>
@@ -412,15 +412,18 @@
         let totalSeconds = 0;
         let grandTotalSeconds = 0;
 
-        // Target timestamp akurat untuk menangani sleep/lock layar
         let targetEndTimeInterval = null;
         let targetEndTimeGrandTotal = null;
 
+        // Template default disesuaikan dengan dokumen pembelajaran Ukin (Total 75 Menit / 01:15:00)
         let intervals = [
-            { name: "Kegiatan Pendahuluan", h: 0, m: 5, s: 0 },
-            { name: "Sintaks 1: Orientasi Masalah", h: 0, m: 10, s: 0 },
-            { name: "Sintaks 2: Pengorganisasian", h: 0, m: 15, s: 0 },
-            { name: "Kegiatan Penutup", h: 0, m: 5, s: 0 }
+            { name: "Kegiatan Awal", h: 0, m: 10, s: 0 },
+            { name: "Sintak 1: Orientasi Murid pada Masalah", h: 0, m: 10, s: 0 },
+            { name: "Sintak 2: Mengorganisasi Murid untuk Belajar", h: 0, m: 5, s: 0 },
+            { name: "Sintak 3: Membimbing Penyelidikan Individu maupun Kelompok", h: 0, m: 15, s: 0 },
+            { name: "Sintak 4: Mengembangkan dan Menyajikan Hasil Karya", h: 0, m: 12, s: 0 },
+            { name: "Sintak 5: Menganalisis dan Evaluasi Proses Pemecahan Masalah", h: 0, m: 8, s: 0 },
+            { name: "Kegiatan Penutup", h: 0, m: 10, s: 0 }
         ];
         let currentIntervalIndex = 0;
 
@@ -479,12 +482,11 @@
                 isRunning = true;
                 startBtn.textContent = 'Jeda';
 
-                // Hitung timestamp target selesai berbasis sistem waktu nyata
                 const now = Date.now();
                 targetEndTimeInterval = now + (totalSeconds * 1000);
                 targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
 
-                countdown = setInterval(tick, 200); // Polling lebih cepat untuk memperhalus kalkulasi delta
+                countdown = setInterval(tick, 200);
             }
         }
 
@@ -493,19 +495,16 @@
 
             const now = Date.now();
 
-            // Hitung ulang sisa detik berdasarkan selisih waktu nyata
             totalSeconds = Math.max(0, Math.ceil((targetEndTimeInterval - now) / 1000));
             grandTotalSeconds = Math.max(0, Math.ceil((targetEndTimeGrandTotal - now) / 1000));
 
             updateDisplay();
 
-            // Cek perpindahan sintaks / interval
             if (totalSeconds <= 0) {
                 if (isIntervalMode && currentIntervalIndex < intervals.length - 1) {
                     currentIntervalIndex++;
                     loadIntervalSintaks(currentIntervalIndex);
 
-                    // Re-set target waktu untuk interval berikutnya
                     const currentNow = Date.now();
                     targetEndTimeInterval = currentNow + (totalSeconds * 1000);
                 } else if (grandTotalSeconds <= 0) {
@@ -556,10 +555,9 @@
             updateDisplay();
         }
 
-        /* Deteksi saat perangkat bangun dari Sleep / Lock Screen */
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && isRunning) {
-                tick(); // Langsung perbarui detik timer ke waktu nyata saat ini
+                tick();
             }
         });
 
