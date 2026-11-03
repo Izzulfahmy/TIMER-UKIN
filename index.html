@@ -24,7 +24,7 @@
             position: relative;
         }
 
-        /* Tombol Fullscreen Pojok Kanan Atas (Hanya Simbol) */
+        /* Tombol Fullscreen Pojok Kanan Atas */
         .fullscreen-btn {
             position: absolute;
             top: 2vh;
@@ -39,7 +39,7 @@
             align-items: center;
             justify-content: center;
             z-index: 20;
-            opacity: 0.15;
+            opacity: 0.2;
             transition: all 0.3s ease;
         }
 
@@ -63,7 +63,7 @@
             transform: scale(0.92);
         }
 
-        /* Seksi Atas: Timer Sintaks (Background Putih, Teks Hitam) */
+        /* Seksi Atas: Timer Sintaks */
         .section-interval {
             display: flex;
             flex-direction: column;
@@ -76,7 +76,6 @@
             padding: 1vh 2vw;
         }
 
-        /* Judul Sintaks Diperbesar (6.5vw) */
         .sintaks-title {
             font-size: 6.5vw;
             font-weight: 900;
@@ -90,7 +89,7 @@
             word-wrap: break-word;
         }
 
-        /* Seksi Bawah: Timer Keseluruhan (Background Hitam Kontras, Teks Putih) */
+        /* Seksi Bawah: Waktu Keseluruhan */
         .section-total {
             display: flex;
             flex-direction: column;
@@ -103,7 +102,6 @@
             border-top: 4px solid #000000;
         }
 
-        /* Ukuran Angka Sama Besar Raksasa Fit Layar */
         .timer-display-large {
             font-size: 13vw;
             font-weight: 900;
@@ -114,15 +112,15 @@
             width: 100%;
         }
 
-        /* Tombol Floating Kontrol & Pengaturan (Pojok Kanan Bawah) */
+        /* Tombol Floating Kontrol & Pengaturan */
         .floating-controls {
             position: absolute;
             bottom: 1.5vh;
             right: 2vw;
             display: flex;
             gap: 8px;
-            z-index: 10;
-            opacity: 0.15;
+            z-index: 20;
+            opacity: 0.2;
             transition: opacity 0.3s ease;
         }
 
@@ -162,7 +160,7 @@
             transform: scale(0.96);
         }
 
-        /* Modal Pengaturan */
+        /* Modal Pengaturan (Di-hide total saat tidak aktif) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -170,18 +168,14 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.5);
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
         }
 
         .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
+            display: flex !important;
         }
 
         .modal {
@@ -198,7 +192,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        /* Tombol X Tutup Modal */
         .modal-close-btn {
             position: absolute;
             top: 16px;
@@ -222,10 +215,6 @@
         .modal-close-btn:hover {
             background: #000000;
             color: #ffffff;
-        }
-
-        .modal-close-btn:active {
-            transform: scale(0.92);
         }
 
         .modal h2 {
@@ -332,7 +321,7 @@
 </head>
 <body>
 
-    <!-- Tombol Fullscreen (Pojok Kanan Atas) -->
+    <!-- Tombol Fullscreen -->
     <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Layar Penuh (Tekan F)">
         <svg id="fullscreenIcon" viewBox="0 0 24 24">
             <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
@@ -345,12 +334,12 @@
         <div class="timer-display-large" id="display">00:10:00</div>
     </div>
 
-    <!-- Bagian Bawah: Waktu Keseluruhan (Hitam Kontras, Tanpa Judul) -->
+    <!-- Bagian Bawah: Waktu Keseluruhan -->
     <div class="section-total" id="sectionTotal">
         <div class="timer-display-large" id="totalDisplay">01:15:00</div>
     </div>
 
-    <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
+    <!-- Kontrol Melayang -->
     <div class="floating-controls">
         <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
         <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
@@ -415,7 +404,7 @@
         let targetEndTimeInterval = null;
         let targetEndTimeGrandTotal = null;
 
-        // Template default sesuai alokasi RPP Ukin (Total 75 Menit)[cite: 1]
+        // Default urutan RPP Ukin (Total 75 Menit)[cite: 1]
         let intervals = [
             { name: "Kegiatan Awal", h: 0, m: 10, s: 0 },[cite: 1]
             { name: "Sintak 1: Orientasi Murid pada Masalah", h: 0, m: 10, s: 0 },[cite: 1]
@@ -561,7 +550,6 @@
             }
         });
 
-        /* Membuka Pengaturan tanpa mem-pause timer yang sedang berjalan */
         function openSettings() {
             renderIntervalInputs();
             modalOverlay.classList.add('active');
@@ -637,7 +625,6 @@
             }
         }
 
-        /* Menyimpan pengaturan dan hanya mereset jika timer sedang diam (tidak berjalan) */
         function saveSettings() {
             isIntervalMode = document.getElementById('enableIntervals').checked;
             toggleTotalTimerVisibility();
