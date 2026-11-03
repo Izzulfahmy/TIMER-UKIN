@@ -63,13 +63,13 @@
             transform: scale(0.92);
         }
 
-        /* Seksi Atas: Timer Sintaks (Rasio 4 dari total 5) */
+        /* Seksi Atas: Timer Sintaks (Rasio 3 dari 4) */
         .section-interval {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 4;
+            flex: 3;
             width: 100%;
             background-color: #ffffff;
             color: #000000;
@@ -78,7 +78,7 @@
 
         /* Judul Sintaks */
         .sintaks-title {
-            font-size: 6.5vw;
+            font-size: 5.5vw;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.02em;
@@ -90,7 +90,7 @@
             word-wrap: break-word;
         }
 
-        /* Seksi Bawah: Timer Keseluruhan (Rasio 1 dari total 5 / Lebih Pendek) */
+        /* Seksi Bawah: Timer Keseluruhan (Rasio 1 dari 4) */
         .section-total {
             display: flex;
             flex-direction: column;
@@ -103,7 +103,7 @@
             border-top: 4px solid #000000;
         }
 
-        /* Ukuran Angka Sama Besar Raksasa Fit Layar di Atas & Bawah */
+        /* Ukuran Angka Sama Besar (13vw) */
         .timer-display-large {
             font-size: 13vw;
             font-weight: 900;
@@ -339,13 +339,13 @@
         </svg>
     </button>
 
-    <!-- Bagian Atas: Timer Sintaks Aktif (Proporsi 4) -->
+    <!-- Bagian Atas: Timer Sintaks Aktif -->
     <div class="section-interval">
         <div class="sintaks-title" id="sintaksTitle">KEGIATAN AWAL</div>
         <div class="timer-display-large" id="display">00:10:00</div>
     </div>
 
-    <!-- Bagian Bawah: Waktu Keseluruhan (Proporsi 1 / Lebih Pendek) -->
+    <!-- Bagian Bawah: Waktu Keseluruhan (Hitam Kontras, Tanpa Judul) -->
     <div class="section-total" id="sectionTotal">
         <div class="timer-display-large" id="totalDisplay">01:15:00</div>
     </div>
@@ -415,7 +415,6 @@
         let targetEndTimeInterval = null;
         let targetEndTimeGrandTotal = null;
 
-        // Template default disesuaikan dengan dokumen pembelajaran Ukin (Total 75 Menit / 01:15:00)
         let intervals = [
             { name: "Kegiatan Awal", h: 0, m: 10, s: 0 },
             { name: "Sintak 1: Orientasi Murid pada Masalah", h: 0, m: 10, s: 0 },
