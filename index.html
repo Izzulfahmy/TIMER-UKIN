@@ -412,6 +412,10 @@
         let totalSeconds = 0;
         let grandTotalSeconds = 0;
 
+        // Target timestamp akurat untuk menangani sleep/lock layar
+        let targetEndTimeInterval = null;
+        let targetEndTimeGrandTotal = null;
+
         let intervals = [
             { name: "Kegiatan Pendahuluan", h: 0, m: 5, s: 0 },
             { name: "Sintaks 1: Orientasi Masalah", h: 0, m: 10, s: 0 },
@@ -447,6 +451,7 @@
         });
 
         function formatTime(seconds) {
+            if (seconds < 0) seconds = 0;
             const hrs = Math.floor(seconds / 3600);
             const mins = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
@@ -474,29 +479,41 @@
                 isRunning = true;
                 startBtn.textContent = 'Jeda';
 
-                countdown = setInterval(() => {
-                    if (totalSeconds > 0) {
-                        totalSeconds--;
-                    }
+                // Hitung timestamp target selesai berbasis sistem waktu nyata
+                const now = Date.now();
+                targetEndTimeInterval = now + (totalSeconds * 1000);
+                targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
 
-                    if (grandTotalSeconds > 0) {
-                        grandTotalSeconds--;
-                    }
+                countdown = setInterval(tick, 200); // Polling lebih cepat untuk memperhalus kalkulasi delta
+            }
+        }
 
-                    updateDisplay();
+        function tick() {
+            if (!isRunning) return;
 
-                    if (totalSeconds <= 0) {
-                        if (isIntervalMode && currentIntervalIndex < intervals.length - 1) {
-                            currentIntervalIndex++;
-                            loadIntervalSintaks(currentIntervalIndex);
-                        } else if (grandTotalSeconds <= 0) {
-                            clearInterval(countdown);
-                            isRunning = false;
-                            startBtn.textContent = 'Mulai';
-                            alert('Seluruh Rangkaian Waktu dan Sintaks Habis!');
-                        }
-                    }
-                }, 1000);
+            const now = Date.now();
+
+            // Hitung ulang sisa detik berdasarkan selisih waktu nyata
+            totalSeconds = Math.max(0, Math.ceil((targetEndTimeInterval - now) / 1000));
+            grandTotalSeconds = Math.max(0, Math.ceil((targetEndTimeGrandTotal - now) / 1000));
+
+            updateDisplay();
+
+            // Cek perpindahan sintaks / interval
+            if (totalSeconds <= 0) {
+                if (isIntervalMode && currentIntervalIndex < intervals.length - 1) {
+                    currentIntervalIndex++;
+                    loadIntervalSintaks(currentIntervalIndex);
+
+                    // Re-set target waktu untuk interval berikutnya
+                    const currentNow = Date.now();
+                    targetEndTimeInterval = currentNow + (totalSeconds * 1000);
+                } else if (grandTotalSeconds <= 0) {
+                    clearInterval(countdown);
+                    isRunning = false;
+                    startBtn.textContent = 'Mulai';
+                    alert('Seluruh Rangkaian Waktu dan Sintaks Habis!');
+                }
             }
         }
 
@@ -539,6 +556,13 @@
             updateDisplay();
         }
 
+        /* Deteksi saat perangkat bangun dari Sleep / Lock Screen */
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isRunning) {
+                tick(); // Langsung perbarui detik timer ke waktu nyata saat ini
+            }
+        });
+
         function openSettings() {
             pauseTimer();
             renderIntervalInputs();
@@ -551,7 +575,6 @@
 
         /* Keyboard Shortcuts Global */
         document.addEventListener('keydown', (e) => {
-            // Abaikan shortcut jika sedang aktif mengetik di dalam input modal
             const activeElement = document.activeElement;
             const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
 
@@ -559,23 +582,18 @@
                 if (e.key === 'Escape') {
                     closeSettings();
                 }
-                return; // Jangan jalankan shortcut timer saat modal terbuka
+                return;
             }
 
             if (isInput) return;
 
-            // Spasi: Mulai / Jeda Timer
             if (e.code === 'Space') {
                 e.preventDefault();
                 toggleTimer();
-            }
-            // Tombol F: Toggle Fullscreen
-            else if (e.key.toLowerCase() === 'f') {
+            } else if (e.key.toLowerCase() === 'f') {
                 e.preventDefault();
                 toggleFullscreen();
-            }
-            // Tombol R: Reset Timer
-            else if (e.key.toLowerCase() === 'r') {
+            } else if (e.key.toLowerCase() === 'r') {
                 e.preventDefault();
                 resetTimer();
             }
