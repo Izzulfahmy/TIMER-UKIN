@@ -185,6 +185,7 @@
         }
 
         .modal {
+            position: relative;
             background: #ffffff;
             color: #000000;
             border: 3px solid #000000;
@@ -197,11 +198,42 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
+        /* Tombol X Tutup Modal */
+        .modal-close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 2px solid #000000;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            line-height: 1;
+            color: #000000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .modal-close-btn:active {
+            transform: scale(0.92);
+        }
+
         .modal h2 {
             font-size: 1.4rem;
             margin-bottom: 16px;
             border-bottom: 2px solid #000000;
             padding-bottom: 6px;
+            padding-right: 36px;
         }
 
         .input-group-row {
@@ -328,6 +360,7 @@
     <!-- Modal Pengaturan -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
+            <button class="modal-close-btn" onclick="closeSettings()" title="Tutup Pengaturan">✕</button>
             <h2>Pengaturan Timer Ukin</h2>
 
             <div class="checkbox-group">
@@ -395,7 +428,6 @@
         const sectionTotal = document.getElementById('sectionTotal');
         const fullscreenIcon = document.getElementById('fullscreenIcon');
 
-        /* Toggle Fullscreen API */
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => console.log(err));
@@ -406,13 +438,10 @@
             }
         }
 
-        /* Update Ikon Fullscreen secara otomatis */
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
-                // Ikon Exit Fullscreen
                 fullscreenIcon.innerHTML = `<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>`;
             } else {
-                // Ikon Enter Fullscreen
                 fullscreenIcon.innerHTML = `<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>`;
             }
         });
@@ -516,6 +545,17 @@
             modalOverlay.classList.add('active');
         }
 
+        function closeSettings() {
+            modalOverlay.classList.remove('active');
+        }
+
+        /* Tutup modal jika tombol Esc ditekan */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeSettings();
+            }
+        });
+
         function toggleIntervalMode() {
             const checked = document.getElementById('enableIntervals').checked;
             document.getElementById('singleTimerSettings').style.display = checked ? 'none' : 'block';
@@ -559,7 +599,7 @@
         function saveSettings() {
             isIntervalMode = document.getElementById('enableIntervals').checked;
             toggleTotalTimerVisibility();
-            modalOverlay.classList.remove('active');
+            closeSettings();
             resetTimer();
         }
 
