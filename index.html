@@ -29,41 +29,43 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 1;
+            flex: 1.2;
             width: 100%;
             background-color: #ffffff;
             color: #000000;
-            padding: 2vh 0;
+            padding: 1vh 2vw;
         }
 
+        /* Judul Sintaks Diperbesar Menjadi Extra Large (6.5vw) */
         .sintaks-title {
-            font-size: 3.8vw;
+            font-size: 6.5vw;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.02em;
             text-align: center;
             color: #000000;
-            margin-bottom: 0.5vh;
-            line-height: 1.1;
-            width: 90%;
+            margin-bottom: 1vh;
+            line-height: 1.05;
+            width: 95%;
+            word-wrap: break-word;
         }
 
-        /* Seksi Bawah: Timer Keseluruhan (Background Hitam Kontras, Teks Putih, Tanpa Tulisan) */
+        /* Seksi Bawah: Timer Keseluruhan (Background Hitam Kontras, Teks Putih) */
         .section-total {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 1;
+            flex: 0.8;
             width: 100%;
             background-color: #000000;
             color: #ffffff;
             border-top: 4px solid #000000;
         }
 
-        /* Ukuran Angka Sama Besar Raksasa (Fit Layar) */
+        /* Ukuran Angka Sama Besar Raksasa Fit Layar */
         .timer-display-large {
-            font-size: 15vw;
+            font-size: 13vw;
             font-weight: 900;
             line-height: 0.95;
             letter-spacing: -0.04em;
@@ -72,7 +74,7 @@
             width: 100%;
         }
 
-        /* Tombol Floating Kontrol & Pengaturan (Melayang di Pojok Kanan Bawah) */
+        /* Tombol Floating Kontrol & Pengaturan (Pojok Kanan Bawah) */
         .floating-controls {
             position: absolute;
             bottom: 1.5vh;
@@ -258,13 +260,13 @@
 </head>
 <body>
 
-    <!-- Bagian Atas: Timer Sintaks Aktif (Latar Putih, Angka Hitam) -->
+    <!-- Bagian Atas: Timer Sintaks Aktif (Sintaks Title Diperbesar) -->
     <div class="section-interval">
         <div class="sintaks-title" id="sintaksTitle">KEGIATAN PENDAHULUAN</div>
         <div class="timer-display-large" id="display">00:05:00</div>
     </div>
 
-    <!-- Bagian Bawah: Waktu Keseluruhan (Latar Hitam Kontras, Angka Putih, Tanpa Judul) -->
+    <!-- Bagian Bawah: Waktu Keseluruhan (Hitam Kontras, Tanpa Judul) -->
     <div class="section-total" id="sectionTotal">
         <div class="timer-display-large" id="totalDisplay">00:35:00</div>
     </div>
