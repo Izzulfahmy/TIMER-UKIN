@@ -562,12 +562,13 @@
         });
 
         function openSettings() {
-            pauseTimer();
+            // PERBAIKAN: Tidak memanggil pauseTimer() agar timer tetap berjalan di latar belakang
             renderIntervalInputs();
             modalOverlay.classList.add('active');
         }
 
         function closeSettings() {
+            // PERBAIKAN: Hanya menutup modal tanpa mengubah status jalan/tidaknya timer
             modalOverlay.classList.remove('active');
         }
 
