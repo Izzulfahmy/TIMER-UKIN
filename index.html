@@ -76,15 +76,15 @@
             padding: 1vh 2vw;
         }
 
-        /* Judul Sintaks */
+        /* Judul Sintaks Diperbesar (6.5vw) */
         .sintaks-title {
-            font-size: 5.5vw;
+            font-size: 6.5vw;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.02em;
             text-align: center;
             color: #000000;
-            margin-bottom: 1vh;
+            margin-bottom: 0.5vh;
             line-height: 1.05;
             width: 95%;
             word-wrap: break-word;
@@ -103,8 +103,19 @@
             border-top: 4px solid #000000;
         }
 
-        /* Ukuran Angka Sama Besar Raksasa (13vw) */
-        .timer-display-large {
+        /* Ukuran Angka Timer Atas Lebih Besar (16vw) */
+        #display {
+            font-size: 16vw;
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Ukuran Angka Timer Bawah (13vw) */
+        #totalDisplay {
             font-size: 13vw;
             font-weight: 900;
             line-height: 0.95;
@@ -342,12 +353,12 @@
     <!-- Bagian Atas: Timer Sintaks Aktif -->
     <div class="section-interval">
         <div class="sintaks-title" id="sintaksTitle">KEGIATAN AWAL</div>
-        <div class="timer-display-large" id="display">00:10:00</div>
+        <div id="display">00:10:00</div>
     </div>
 
     <!-- Bagian Bawah: Waktu Keseluruhan -->
     <div class="section-total" id="sectionTotal">
-        <div class="timer-display-large" id="totalDisplay">01:15:00</div>
+        <div id="totalDisplay">01:15:00</div>
     </div>
 
     <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
@@ -519,7 +530,6 @@
             }
         }
 
-        /* Fungsi Kalibrasi Waktu (+5, +10, -5, -10 menit) */
         function adjustTime(minutes) {
             const addedSeconds = minutes * 60;
 
