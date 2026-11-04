@@ -90,7 +90,7 @@
             word-wrap: break-word;
         }
 
-        /* Seksi Bawah: Timer Keseluruhan (Batas Ditinggikan Sedikit) */
+        /* Seksi Bawah: Timer Keseluruhan */
         .section-total {
             display: flex;
             flex-direction: column;
@@ -120,9 +120,9 @@
             bottom: 1.5vh;
             right: 2vw;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             z-index: 10;
-            opacity: 0.15;
+            opacity: 0.2;
             transition: opacity 0.3s ease;
         }
 
@@ -131,7 +131,7 @@
         }
 
         .btn {
-            padding: 6px 14px;
+            padding: 6px 12px;
             font-size: 0.85rem;
             font-weight: 700;
             border: 2px solid #ffffff;
@@ -352,6 +352,10 @@
 
     <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
     <div class="floating-controls">
+        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Menit">-10m</button>
+        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Menit">-5m</button>
+        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Menit">+5m</button>
+        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Menit">+10m</button>
         <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
         <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
         <button class="btn btn-outline" onclick="openSettings()">Pengaturan</button>
@@ -513,6 +517,21 @@
                     alert('Seluruh Rangkaian Waktu dan Sintaks Habis!');
                 }
             }
+        }
+
+        /* Fungsi Kalibrasi Waktu (+5, +10, -5, -10 menit) */
+        function adjustTime(minutes) {
+            const addedSeconds = minutes * 60;
+
+            totalSeconds = Math.max(0, totalSeconds + addedSeconds);
+            grandTotalSeconds = Math.max(0, grandTotalSeconds + addedSeconds);
+
+            if (isRunning) {
+                targetEndTimeInterval += addedSeconds * 1000;
+                targetEndTimeGrandTotal += addedSeconds * 1000;
+            }
+
+            updateDisplay();
         }
 
         function pauseTimer() {
