@@ -363,10 +363,10 @@
 
     <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
     <div class="floating-controls">
-        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Menit">-10m</button>
-        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Menit">-5m</button>
-        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Menit">+5m</button>
-        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Menit">+10m</button>
+        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Detik">-10d</button>
+        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Detik">-5d</button>
+        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Detik">+5d</button>
+        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Detik">+10d</button>
         <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
         <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
         <button class="btn btn-outline" onclick="openSettings()">Pengaturan</button>
@@ -530,15 +530,14 @@
             }
         }
 
-        function adjustTime(minutes) {
-            const addedSeconds = minutes * 60;
-
-            totalSeconds = Math.max(0, totalSeconds + addedSeconds);
-            grandTotalSeconds = Math.max(0, grandTotalSeconds + addedSeconds);
+        /* Fungsi Kalibrasi Waktu (+5d, +10d, -5d, -10d detik) */
+        function adjustTime(seconds) {
+            totalSeconds = Math.max(0, totalSeconds + seconds);
+            grandTotalSeconds = Math.max(0, grandTotalSeconds + seconds);
 
             if (isRunning) {
-                targetEndTimeInterval += addedSeconds * 1000;
-                targetEndTimeGrandTotal += addedSeconds * 1000;
+                targetEndTimeInterval += seconds * 1000;
+                targetEndTimeGrandTotal += seconds * 1000;
             }
 
             updateDisplay();
