@@ -38,7 +38,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 20;
+            z-index: 50; /* Diperbesar agar selalu di atas */
             opacity: 0.15;
             transition: all 0.3s ease;
         }
@@ -132,7 +132,7 @@
             right: 2vw;
             display: flex;
             gap: 6px;
-            z-index: 10;
+            z-index: 50; /* Diperbesar agar selalu bisa diklik */
             opacity: 0.2;
             transition: opacity 0.3s ease;
         }
@@ -171,6 +171,39 @@
 
         .btn:active {
             transform: scale(0.96);
+        }
+
+        /* Layer Hitung Mundur & Banner Selesai */
+        .countdown-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); /* Latar belakang gelap transparan */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none; /* Agar tidak menghalangi tombol kontrol di bawahnya */
+            transition: opacity 0.2s ease;
+        }
+        .countdown-overlay.active {
+            opacity: 1;
+        }
+        
+        .countdown-number {
+            font-size: 50vw;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+            text-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+
+        .countdown-number.banner-selesai {
+            font-size: 10vw;
+            text-align: center;
+            color: #ff4444; /* Merah untuk penegasan selesai */
+            letter-spacing: 0.02em;
+            text-shadow: 0 5px 20px rgba(0,0,0,0.9);
         }
 
         /* Modal Pengaturan */
@@ -331,7 +364,6 @@
             accent-color: #000000;
         }
 
-        /* Perbaikan Compatibility Warning VS Code */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -369,6 +401,11 @@
         <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
         <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
         <button class="btn btn-outline" onclick="openSettings()">Pengaturan</button>
+    </div>
+    
+    <!-- Layer Hitung Mundur 10 Detik Terakhir & Banner Selesai -->
+    <div class="countdown-overlay" id="countdownOverlay">
+        <div class="countdown-number" id="countdownNumber">10</div>
     </div>
 
     <div class="modal-overlay" id="modalOverlay">
@@ -477,7 +514,26 @@
         function updateDisplay() {
             displayEl.textContent = formatTime(Math.max(0, totalSeconds));
             totalDisplayEl.textContent = formatTime(Math.max(0, grandTotalSeconds));
-            document.title = `${formatTime(Math.max(0, totalSeconds))} - Timer Ukin`;
+            document.title = `${formatTime(Math.max(0, totalSeconds))} - Timer Sukses Ukin`;
+            
+            // Logika Menampilkan Layar Hitung Mundur 10 Detik Terakhir dan Banner Selesai
+            const overlay = document.getElementById('countdownOverlay');
+            const numEl = document.getElementById('countdownNumber');
+            
+            if (grandTotalSeconds <= 10 && grandTotalSeconds > 0) {
+                // Sisa 10 detik, tampilkan hanya angka raksasa
+                overlay.classList.add('active');
+                numEl.className = 'countdown-number';
+                numEl.textContent = grandTotalSeconds;
+            } else if (grandTotalSeconds <= 0) {
+                // Waktu benar-benar habis, tampilkan banner
+                overlay.classList.add('active');
+                numEl.className = 'countdown-number banner-selesai';
+                numEl.innerHTML = 'PEMBELAJARAN<br>SELESAI';
+            } else {
+                // Waktu masih di atas 10 detik, sembunyikan layar transparan
+                overlay.classList.remove('active');
+            }
         }
 
         function toggleTimer() {
@@ -497,7 +553,6 @@
 
                 const now = Date.now();
                 
-                // Gunakan memori presisi milidetik saat resume agar tidak kehilangan waktu
                 if (remainingIntervalMs > 0 || remainingTotalMs > 0) {
                     targetEndTimeInterval = now + remainingIntervalMs;
                     targetEndTimeGrandTotal = now + remainingTotalMs;
@@ -506,7 +561,6 @@
                     targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
                 }
 
-                // Cek setiap 100ms agar sangat presisi dan instan saat berganti interval
                 countdown = setInterval(tick, 100);
             }
         }
@@ -516,41 +570,35 @@
 
             const now = Date.now();
 
-            // Biarkan bisa minus sementara, agar tahu berapa sisa delay untuk ditarik ke interval berikutnya
             totalSeconds = Math.ceil((targetEndTimeInterval - now) / 1000);
             grandTotalSeconds = Math.ceil((targetEndTimeGrandTotal - now) / 1000);
 
-            // Logika lompatan sintaks yang 100% sinkron (Jika dikurangi hingga di bawah 0)
             if (isIntervalMode) {
                 while (totalSeconds <= 0 && currentIntervalIndex < intervals.length - 1) {
                     currentIntervalIndex++;
                     const item = intervals[currentIntervalIndex];
                     const nextDuration = (item.h * 3600) + (item.m * 60) + item.s;
                     
-                    // Tambahkan durasi baru KE TARGET absolut sebelumnya, JANGAN di reset (Ini kunci anti-drift/delay)
                     targetEndTimeInterval += (nextDuration * 1000);
                     sintaksTitleEl.textContent = item.name;
                     
-                    // Hitung ulang berdasarkan target barusan
                     totalSeconds = Math.ceil((targetEndTimeInterval - now) / 1000);
                 }
             }
 
             updateDisplay();
 
-            // Stop jika benar-benar habis di batas akhir
             if (grandTotalSeconds <= 0 && totalSeconds <= 0) {
                 clearInterval(countdown);
                 isRunning = false;
                 startBtn.textContent = 'Mulai';
-                setTimeout(() => alert('Seluruh Rangkaian Waktu dan Sintaks Habis!'), 100);
+                // Alert lama telah dihapus dan diganti dengan Banner Selesai (diproses di dalam fungsi updateDisplay)
             }
         }
 
         function adjustTime(seconds) {
             let wasRunning = isRunning;
             
-            // Jika timer sedang pause, jalankan mode simulasi running untuk menghitung matematika lompatannya
             if (!isRunning) {
                 isRunning = true;
                 const now = Date.now();
@@ -563,14 +611,11 @@
                 }
             }
 
-            // Tambahkan / kurangkan target waktu
             targetEndTimeInterval += (seconds * 1000);
             targetEndTimeGrandTotal += (seconds * 1000);
             
-            // Panggil tick secara paksa untuk memproses perpindahan jika masuk minus
             tick();
 
-            // Kembalikan ke state asalnya
             if (!wasRunning) {
                 isRunning = false;
                 const now = Date.now();
@@ -585,7 +630,6 @@
             isRunning = false;
             startBtn.textContent = 'Lanjut';
             
-            // Simpan posisi terakhir dalam presisi tinggi (milidetik)
             const now = Date.now();
             remainingIntervalMs = targetEndTimeInterval - now;
             remainingTotalMs = targetEndTimeGrandTotal - now;
