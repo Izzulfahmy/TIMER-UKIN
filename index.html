@@ -24,7 +24,7 @@
             position: relative;
         }
 
-        /* Tombol Fullscreen Pojok Kanan Atas (Hanya Simbol) */
+        /* Tombol Fullscreen Pojok Kanan Atas */
         .fullscreen-btn {
             position: absolute;
             top: 2vh;
@@ -343,25 +343,21 @@
 </head>
 <body>
 
-    <!-- Tombol Fullscreen (Pojok Kanan Atas) -->
     <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Layar Penuh (Tekan F)">
         <svg id="fullscreenIcon" viewBox="0 0 24 24">
             <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
         </svg>
     </button>
 
-    <!-- Bagian Atas: Timer Sintaks Aktif -->
     <div class="section-interval">
         <div class="sintaks-title" id="sintaksTitle">KEGIATAN AWAL</div>
         <div id="display">00:10:00</div>
     </div>
 
-    <!-- Bagian Bawah: Waktu Keseluruhan -->
     <div class="section-total" id="sectionTotal">
         <div id="totalDisplay">01:15:00</div>
     </div>
 
-    <!-- Kontrol Melayang (Pojok Kanan Bawah) -->
     <div class="floating-controls">
         <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Detik">-10d</button>
         <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Detik">-5d</button>
@@ -372,7 +368,6 @@
         <button class="btn btn-outline" onclick="openSettings()">Pengaturan</button>
     </div>
 
-    <!-- Modal Pengaturan -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <button class="modal-close-btn" onclick="closeSettings()" title="Tutup Pengaturan">✕</button>
@@ -388,7 +383,6 @@
                 <label for="showTotalTimer">Tampilkan Waktu Keseluruhan di Bawah</label>
             </div>
 
-            <!-- Mode Manual Biasa -->
             <div id="singleTimerSettings" style="display: none;">
                 <div class="input-group-row">
                     <div class="input-field">
@@ -406,7 +400,6 @@
                 </div>
             </div>
 
-            <!-- Mode Interval Sintaks -->
             <div id="intervalTimerSettings">
                 <label style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Daftar Sintaks / Tahapan:</label>
                 <div class="interval-list" id="intervalContainer"></div>
@@ -429,6 +422,9 @@
 
         let targetEndTimeInterval = null;
         let targetEndTimeGrandTotal = null;
+        
+        let remainingIntervalMs = 0;
+        let remainingTotalMs = 0;
 
         let intervals = [
             { name: "Kegiatan Awal", h: 0, m: 10, s: 0 },
@@ -476,9 +472,9 @@
         }
 
         function updateDisplay() {
-            displayEl.textContent = formatTime(totalSeconds);
-            totalDisplayEl.textContent = formatTime(grandTotalSeconds);
-            document.title = `${formatTime(totalSeconds)} - Timer Ukin`;
+            displayEl.textContent = formatTime(Math.max(0, totalSeconds));
+            totalDisplayEl.textContent = formatTime(Math.max(0, grandTotalSeconds));
+            document.title = `${formatTime(Math.max(0, totalSeconds))} - Timer Ukin`;
         }
 
         function toggleTimer() {
@@ -497,10 +493,18 @@
                 startBtn.textContent = 'Jeda';
 
                 const now = Date.now();
-                targetEndTimeInterval = now + (totalSeconds * 1000);
-                targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
+                
+                // Gunakan memori presisi milidetik saat resume agar tidak kehilangan waktu
+                if (remainingIntervalMs > 0 || remainingTotalMs > 0) {
+                    targetEndTimeInterval = now + remainingIntervalMs;
+                    targetEndTimeGrandTotal = now + remainingTotalMs;
+                } else {
+                    targetEndTimeInterval = now + (totalSeconds * 1000);
+                    targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
+                }
 
-                countdown = setInterval(tick, 200);
+                // Cek setiap 100ms agar sangat presisi dan instan saat berganti interval
+                countdown = setInterval(tick, 100);
             }
         }
 
@@ -509,50 +513,87 @@
 
             const now = Date.now();
 
-            totalSeconds = Math.max(0, Math.ceil((targetEndTimeInterval - now) / 1000));
-            grandTotalSeconds = Math.max(0, Math.ceil((targetEndTimeGrandTotal - now) / 1000));
+            // Biarkan bisa minus sementara, agar tahu berapa sisa delay untuk ditarik ke interval berikutnya
+            totalSeconds = Math.ceil((targetEndTimeInterval - now) / 1000);
+            grandTotalSeconds = Math.ceil((targetEndTimeGrandTotal - now) / 1000);
+
+            // Logika lompatan sintaks yang 100% sinkron (Jika dikurangi hingga di bawah 0)
+            if (isIntervalMode) {
+                while (totalSeconds <= 0 && currentIntervalIndex < intervals.length - 1) {
+                    currentIntervalIndex++;
+                    const item = intervals[currentIntervalIndex];
+                    const nextDuration = (item.h * 3600) + (item.m * 60) + item.s;
+                    
+                    // Tambahkan durasi baru KE TARGET absolut sebelumnya, JANGAN di reset (Ini kunci anti-drift/delay)
+                    targetEndTimeInterval += (nextDuration * 1000);
+                    sintaksTitleEl.textContent = item.name;
+                    
+                    // Hitung ulang berdasarkan target barusan
+                    totalSeconds = Math.ceil((targetEndTimeInterval - now) / 1000);
+                }
+            }
 
             updateDisplay();
 
-            if (totalSeconds <= 0) {
-                if (isIntervalMode && currentIntervalIndex < intervals.length - 1) {
-                    currentIntervalIndex++;
-                    loadIntervalSintaks(currentIntervalIndex);
-
-                    const currentNow = Date.now();
-                    targetEndTimeInterval = currentNow + (totalSeconds * 1000);
-                } else if (grandTotalSeconds <= 0) {
-                    clearInterval(countdown);
-                    isRunning = false;
-                    startBtn.textContent = 'Mulai';
-                    alert('Seluruh Rangkaian Waktu dan Sintaks Habis!');
-                }
+            // Stop jika benar-benar habis di batas akhir
+            if (grandTotalSeconds <= 0 && totalSeconds <= 0) {
+                clearInterval(countdown);
+                isRunning = false;
+                startBtn.textContent = 'Mulai';
+                setTimeout(() => alert('Seluruh Rangkaian Waktu dan Sintaks Habis!'), 100);
             }
         }
 
-        /* Fungsi Kalibrasi Waktu (+5d, +10d, -5d, -10d detik) */
         function adjustTime(seconds) {
-            totalSeconds = Math.max(0, totalSeconds + seconds);
-            grandTotalSeconds = Math.max(0, grandTotalSeconds + seconds);
-
-            if (isRunning) {
-                targetEndTimeInterval += seconds * 1000;
-                targetEndTimeGrandTotal += seconds * 1000;
+            let wasRunning = isRunning;
+            
+            // Jika timer sedang pause, jalankan mode simulasi running untuk menghitung matematika lompatannya
+            if (!isRunning) {
+                isRunning = true;
+                const now = Date.now();
+                if (remainingIntervalMs === 0 && remainingTotalMs === 0) {
+                    targetEndTimeInterval = now + (totalSeconds * 1000);
+                    targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
+                } else {
+                    targetEndTimeInterval = now + remainingIntervalMs;
+                    targetEndTimeGrandTotal = now + remainingTotalMs;
+                }
             }
 
-            updateDisplay();
+            // Tambahkan / kurangkan target waktu
+            targetEndTimeInterval += (seconds * 1000);
+            targetEndTimeGrandTotal += (seconds * 1000);
+            
+            // Panggil tick secara paksa untuk memproses perpindahan jika masuk minus
+            tick();
+
+            // Kembalikan ke state asalnya
+            if (!wasRunning) {
+                isRunning = false;
+                const now = Date.now();
+                remainingIntervalMs = targetEndTimeInterval - now;
+                remainingTotalMs = targetEndTimeGrandTotal - now;
+                updateDisplay();
+            }
         }
 
         function pauseTimer() {
             clearInterval(countdown);
             isRunning = false;
             startBtn.textContent = 'Lanjut';
+            
+            // Simpan posisi terakhir dalam presisi tinggi (milidetik)
+            const now = Date.now();
+            remainingIntervalMs = targetEndTimeInterval - now;
+            remainingTotalMs = targetEndTimeGrandTotal - now;
         }
 
         function resetTimer() {
             clearInterval(countdown);
             isRunning = false;
             startBtn.textContent = 'Mulai';
+            remainingIntervalMs = 0;
+            remainingTotalMs = 0;
             
             if (isIntervalMode) {
                 currentIntervalIndex = 0;
