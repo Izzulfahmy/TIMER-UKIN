@@ -38,7 +38,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 50; /* Diperbesar agar selalu di atas */
+            z-index: 50; 
             opacity: 0.15;
             transition: all 0.3s ease;
         }
@@ -132,7 +132,7 @@
             right: 2vw;
             display: flex;
             gap: 6px;
-            z-index: 50; /* Diperbesar agar selalu bisa diklik */
+            z-index: 50; 
             opacity: 0.2;
             transition: opacity 0.3s ease;
         }
@@ -177,13 +177,13 @@
         .countdown-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85); /* Latar belakang gelap transparan */
+            background: rgba(0, 0, 0, 0.85); 
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 40;
             opacity: 0;
-            pointer-events: none; /* Agar tidak menghalangi tombol kontrol di bawahnya */
+            pointer-events: none; 
             transition: opacity 0.2s ease;
         }
         .countdown-overlay.active {
@@ -201,7 +201,7 @@
         .countdown-number.banner-selesai {
             font-size: 10vw;
             text-align: center;
-            color: #ff4444; /* Merah untuk penegasan selesai */
+            color: #ff4444; 
             letter-spacing: 0.02em;
             text-shadow: 0 5px 20px rgba(0,0,0,0.9);
         }
@@ -466,6 +466,8 @@
         let remainingIntervalMs = 0;
         let remainingTotalMs = 0;
 
+        let wakeLock = null; // Variabel untuk menyimpan status Wake Lock
+
         let intervals = [
             { name: "Salam, lagu nasional, kehadiran, kerapihan, icebreaking, apersepsi, tujuan pembelajaran", h: 0, m: 9, s: 0 },
             { name: "Sintak 1: Orientasi Murid pada Masalah", h: 0, m: 10, s: 0 },
@@ -484,6 +486,28 @@
         const modalOverlay = document.getElementById('modalOverlay');
         const sectionTotal = document.getElementById('sectionTotal');
         const fullscreenIcon = document.getElementById('fullscreenIcon');
+
+        // ==== FITUR SCREEN WAKE LOCK (ANTI-SLEEP) ====
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Layar Anti-Sleep Aktif!');
+                } catch (err) {
+                    console.error('Wake Lock gagal:', err);
+                }
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                    console.log('Layar Anti-Sleep Dimatikan');
+                });
+            }
+        }
+        // =============================================
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
@@ -521,17 +545,14 @@
             const numEl = document.getElementById('countdownNumber');
             
             if (grandTotalSeconds <= 10 && grandTotalSeconds > 0) {
-                // Sisa 10 detik, tampilkan hanya angka raksasa
                 overlay.classList.add('active');
                 numEl.className = 'countdown-number';
                 numEl.textContent = grandTotalSeconds;
             } else if (grandTotalSeconds <= 0) {
-                // Waktu benar-benar habis, tampilkan banner
                 overlay.classList.add('active');
                 numEl.className = 'countdown-number banner-selesai';
                 numEl.innerHTML = 'PEMBELAJARAN<br>SELESAI';
             } else {
-                // Waktu masih di atas 10 detik, sembunyikan layar transparan
                 overlay.classList.remove('active');
             }
         }
@@ -550,6 +571,9 @@
 
                 isRunning = true;
                 startBtn.textContent = 'Jeda';
+
+                // Meminta layar agar tidak mati/sleep saat timer jalan
+                requestWakeLock();
 
                 const now = Date.now();
                 
@@ -592,7 +616,7 @@
                 clearInterval(countdown);
                 isRunning = false;
                 startBtn.textContent = 'Mulai';
-                // Alert lama telah dihapus dan diganti dengan Banner Selesai (diproses di dalam fungsi updateDisplay)
+                releaseWakeLock(); // Matikan fitur anti-sleep saat timer habis
             }
         }
 
@@ -629,6 +653,7 @@
             clearInterval(countdown);
             isRunning = false;
             startBtn.textContent = 'Lanjut';
+            releaseWakeLock(); // Matikan fitur anti-sleep saat dijeda
             
             const now = Date.now();
             remainingIntervalMs = targetEndTimeInterval - now;
@@ -639,6 +664,8 @@
             clearInterval(countdown);
             isRunning = false;
             startBtn.textContent = 'Mulai';
+            releaseWakeLock(); // Matikan fitur anti-sleep saat direset
+            
             remainingIntervalMs = 0;
             remainingTotalMs = 0;
             
@@ -671,6 +698,10 @@
         }
 
         document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && isRunning) {
+                // Meminta ulang wake lock jika kembali dari tab/aplikasi lain
+                requestWakeLock();
+            }
             if (!document.hidden && isRunning) {
                 tick();
             }
