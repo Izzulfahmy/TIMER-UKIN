@@ -17,10 +17,10 @@
 
         .status {
             position: absolute; top: 10px; width: 100%; text-align: center;
-            font-size: 0.8rem; font-weight: 700; color: #aaaaaa; padding: 10px;
+            font-size: 0.85rem; font-weight: 700; color: #aaaaaa; padding: 10px;
         }
         .status.connected { color: #4cd137; }
-        .status.error { color: #e84118; }
+        .status.error { color: #f1c40f; } /* Warna peringatan kuning untuk loading */
 
         .container {
             flex: 1; display: flex; flex-direction: column; 
@@ -29,7 +29,7 @@
 
         .title {
             font-size: 6vw; font-weight: 800; text-align: center; margin-bottom: 20px;
-            color: #f5f6fa; line-height: 1.2;
+            color: #f5f6fa; line-height: 1.2; min-height: 2em;
         }
 
         .timer-main {
@@ -53,7 +53,7 @@
             box-shadow: 0 4px 15px rgba(255,255,255,0.2); transition: all 0.2s;
         }
         .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .btn-outline {
             background-color: transparent; border: 3px solid #ffffff; color: #ffffff;
             box-shadow: none;
@@ -64,12 +64,12 @@
 </head>
 <body>
 
-    <div class="status" id="statusText">Menghubungkan ke Laptop...</div>
+    <div class="status error" id="statusText">Mencari Timer Aktif...</div>
 
     <div class="container">
-        <div class="title" id="sintaksTitle">-</div>
-        <div class="timer-main" id="timerMain">00:00:00</div>
-        <div class="timer-total" id="timerTotal">00:00:00</div>
+        <div class="title" id="sintaksTitle">Menunggu...</div>
+        <div class="timer-main" id="timerMain">--:--:--</div>
+        <div class="timer-total" id="timerTotal">--:--:--</div>
 
         <div class="controls">
             <button class="btn btn-outline" onclick="sendCommand('RESET')" id="btnReset" disabled>
@@ -82,9 +82,6 @@
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const hostId = urlParams.get('id');
-        
         const statusEl = document.getElementById('statusText');
         const titleEl = document.getElementById('sintaksTitle');
         const timerMainEl = document.getElementById('timerMain');
@@ -94,14 +91,15 @@
         const iconPlayPath = "M8 5v14l11-7z";
         const iconPausePath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 
+        // HARUS SAMA DENGAN STATIC ID DI LAPTOP
+        const TARGET_HOST_ID = "timer-ukin-izzul-host-2026"; 
+        
+        let peer = null;
         let conn = null;
+        let retryInterval = null;
 
-        if (!hostId) {
-            statusEl.innerText = 'Error: ID Laptop tidak ditemukan. Scan ulang QR.';
-            statusEl.className = 'status error';
-        } else {
-            // Menggunakan STUN Server Google untuk menembus jaringan GitHub Pages
-            let peer = new Peer({
+        function initializePeer() {
+            peer = new Peer({
                 config: {
                     'iceServers': [
                         { urls: 'stun:stun.l.google.com:19302' },
@@ -111,52 +109,69 @@
             });
 
             peer.on('open', () => {
-                conn = peer.connect(hostId);
-
-                // Pastikan Data Channel benar-benar siap
-                conn.on('open', () => {
-                    statusEl.innerText = 'Terhubung! Siap Mengontrol.';
-                    statusEl.className = 'status connected';
-                    btnToggle.disabled = false;
-                    btnReset.disabled = false;
-                });
-
-                conn.on('data', (data) => {
-                    titleEl.innerText = data.title;
-                    timerMainEl.innerText = data.timer;
-                    timerTotalEl.innerText = data.total;
-                    
-                    if (data.isRunning) {
-                        btnToggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="${iconPausePath}"/></svg> Jeda`;
-                    } else {
-                        btnToggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="${iconPlayPath}"/></svg> Mulai`;
-                    }
-                });
-
-                conn.on('close', () => {
-                    statusEl.innerText = 'Koneksi Terputus dari Laptop.';
-                    statusEl.className = 'status error';
-                    btnToggle.disabled = true;
-                    btnReset.disabled = true;
-                });
+                connectToHost();
             });
 
             peer.on('error', (err) => {
-                statusEl.innerText = 'Gagal menghubungkan: ' + err.type;
-                statusEl.className = 'status error';
+                if (err.type === 'peer-unavailable') {
+                    statusEl.innerText = 'Mencari Laptop... (Auto Retry)';
+                    statusEl.className = 'status error';
+                    // Coba konek ulang setiap 3 detik jika laptop belum nyala
+                    if(!retryInterval) {
+                        retryInterval = setTimeout(() => { connectToHost(); }, 3000);
+                    }
+                } else {
+                    statusEl.innerText = 'Error: ' + err.type;
+                }
             });
         }
 
-        // Fungsi kirim perintah + Notifikasi Getar/Error
+        function connectToHost() {
+            clearTimeout(retryInterval);
+            retryInterval = null;
+            
+            conn = peer.connect(TARGET_HOST_ID, { reliable: true });
+
+            conn.on('open', () => {
+                statusEl.innerText = 'Berhasil Terhubung ke Laptop!';
+                statusEl.className = 'status connected';
+                btnToggle.disabled = false;
+                btnReset.disabled = false;
+                if (navigator.vibrate) navigator.vibrate(100); // Getar sukses
+            });
+
+            conn.on('data', (data) => {
+                titleEl.innerText = data.title;
+                timerMainEl.innerText = data.timer;
+                timerTotalEl.innerText = data.total;
+                
+                if (data.isRunning) {
+                    btnToggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="${iconPausePath}"/></svg> Jeda`;
+                } else {
+                    btnToggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="${iconPlayPath}"/></svg> Mulai`;
+                }
+            });
+
+            conn.on('close', () => {
+                statusEl.innerText = 'Koneksi Terputus. Menunggu Laptop...';
+                statusEl.className = 'status error';
+                btnToggle.disabled = true;
+                btnReset.disabled = true;
+                // Coba auto reconnect lagi saat laptop terputus
+                retryInterval = setTimeout(() => { connectToHost(); }, 3000);
+            });
+        }
+
+        // Fungsi kirim perintah
         function sendCommand(cmd) {
             if (conn && conn.open) {
                 conn.send(cmd);
-                // Efek getar ringan (haptic feedback) saat tombol ditekan (hanya jalan di HP)
-                if (navigator.vibrate) navigator.vibrate(50);
-            } else {
-                alert('Koneksi belum stabil atau terputus. Silakan muat ulang (Refresh) halaman HP Anda.');
+                if (navigator.vibrate) navigator.vibrate(50); // Getar klik
             }
         }
+
+        // Mulai proses
+        initializePeer();
     </script>
 </body>
 </html>
