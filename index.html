@@ -131,7 +131,7 @@
             bottom: 1.5vh;
             right: 2vw;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             z-index: 50; 
             opacity: 0.2;
             transition: opacity 0.3s ease;
@@ -142,15 +142,20 @@
         }
 
         .btn {
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            padding: 0 14px;
+            height: 38px;
+            min-width: 44px;
+            font-size: 1rem;
+            font-weight: 800;
             border: 2px solid #ffffff;
             background-color: #ffffff;
             color: #000000;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-outline {
@@ -162,15 +167,24 @@
         .btn:hover {
             background-color: #dddddd;
             color: #000000;
+            border-color: #dddddd;
         }
 
         .btn-outline:hover {
             background-color: #ffffff;
             color: #000000;
+            border-color: #ffffff;
         }
 
         .btn:active {
-            transform: scale(0.96);
+            transform: scale(0.92);
+        }
+
+        /* Penyesuaian Ikon pada Tombol */
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
         /* Layer Hitung Mundur & Banner Selesai */
@@ -394,13 +408,25 @@
     </div>
 
     <div class="floating-controls">
-        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Detik">-10d</button>
-        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Detik">-5d</button>
-        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Detik">+5d</button>
-        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Detik">+10d</button>
-        <button class="btn" id="startBtn" onclick="toggleTimer()">Mulai</button>
-        <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
-        <button class="btn btn-outline" onclick="openSettings()">Pengaturan</button>
+        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Detik">-10</button>
+        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Detik">-5</button>
+        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Detik">+5</button>
+        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Detik">+10</button>
+        
+        <button class="btn" id="startBtn" onclick="toggleTimer()" title="Mulai / Jeda">
+            <!-- Ikon Play Bawaan -->
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        
+        <button class="btn btn-outline" onclick="resetTimer()" title="Reset Waktu">
+            <!-- Ikon Refresh/Reset -->
+            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        </button>
+        
+        <button class="btn btn-outline" onclick="openSettings()" title="Pengaturan">
+            <!-- Ikon Gear/Pengaturan -->
+            <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 C13.73,21.83,13.93,22,14.17,22h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+        </button>
     </div>
     
     <!-- Layer Hitung Mundur 10 Detik Terakhir & Banner Selesai -->
@@ -466,7 +492,11 @@
         let remainingIntervalMs = 0;
         let remainingTotalMs = 0;
 
-        let wakeLock = null; // Variabel untuk menyimpan status Wake Lock
+        let wakeLock = null; 
+        
+        // Kumpulan Ikon Play & Pause (Bentuk SVG)
+        const iconPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        const iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
         let intervals = [
             { name: "Salam, lagu nasional, kehadiran, kerapihan, icebreaking, apersepsi, tujuan pembelajaran", h: 0, m: 9, s: 0 },
@@ -570,7 +600,9 @@
                 if (totalSeconds <= 0 && grandTotalSeconds <= 0) return;
 
                 isRunning = true;
-                startBtn.textContent = 'Jeda';
+                
+                // Ubah Icon Menjadi Pause
+                startBtn.innerHTML = iconPause;
 
                 // Meminta layar agar tidak mati/sleep saat timer jalan
                 requestWakeLock();
@@ -615,8 +647,8 @@
             if (grandTotalSeconds <= 0 && totalSeconds <= 0) {
                 clearInterval(countdown);
                 isRunning = false;
-                startBtn.textContent = 'Mulai';
-                releaseWakeLock(); // Matikan fitur anti-sleep saat timer habis
+                startBtn.innerHTML = iconPlay;
+                releaseWakeLock();
             }
         }
 
@@ -652,8 +684,11 @@
         function pauseTimer() {
             clearInterval(countdown);
             isRunning = false;
-            startBtn.textContent = 'Lanjut';
-            releaseWakeLock(); // Matikan fitur anti-sleep saat dijeda
+            
+            // Ubah Icon Menjadi Play
+            startBtn.innerHTML = iconPlay;
+            
+            releaseWakeLock(); 
             
             const now = Date.now();
             remainingIntervalMs = targetEndTimeInterval - now;
@@ -663,8 +698,9 @@
         function resetTimer() {
             clearInterval(countdown);
             isRunning = false;
-            startBtn.textContent = 'Mulai';
-            releaseWakeLock(); // Matikan fitur anti-sleep saat direset
+            
+            startBtn.innerHTML = iconPlay;
+            releaseWakeLock(); 
             
             remainingIntervalMs = 0;
             remainingTotalMs = 0;
@@ -699,7 +735,6 @@
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && isRunning) {
-                // Meminta ulang wake lock jika kembali dari tab/aplikasi lain
                 requestWakeLock();
             }
             if (!document.hidden && isRunning) {
