@@ -17,7 +17,7 @@
 
         .status {
             position: absolute; top: 10px; width: 100%; text-align: center;
-            font-size: 0.8rem; font-weight: 700; color: #aaaaaa;
+            font-size: 0.8rem; font-weight: 700; color: #aaaaaa; padding: 10px;
         }
         .status.connected { color: #4cd137; }
         .status.error { color: #e84118; }
@@ -53,6 +53,7 @@
             box-shadow: 0 4px 15px rgba(255,255,255,0.2); transition: all 0.2s;
         }
         .btn:active { transform: scale(0.95); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-outline {
             background-color: transparent; border: 3px solid #ffffff; color: #ffffff;
             box-shadow: none;
@@ -93,25 +94,33 @@
         const iconPlayPath = "M8 5v14l11-7z";
         const iconPausePath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 
+        let conn = null;
+
         if (!hostId) {
-            statusEl.innerText = 'Error: ID Laptop tidak ditemukan di URL.';
+            statusEl.innerText = 'Error: ID Laptop tidak ditemukan. Scan ulang QR.';
             statusEl.className = 'status error';
         } else {
-            let peer = new Peer();
-            let conn = null;
+            // Menggunakan STUN Server Google untuk menembus jaringan GitHub Pages
+            let peer = new Peer({
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
 
             peer.on('open', () => {
-                // Koneksikan ke Host ID (Laptop)
                 conn = peer.connect(hostId);
 
+                // Pastikan Data Channel benar-benar siap
                 conn.on('open', () => {
-                    statusEl.innerText = 'Terhubung!';
+                    statusEl.innerText = 'Terhubung! Siap Mengontrol.';
                     statusEl.className = 'status connected';
                     btnToggle.disabled = false;
                     btnReset.disabled = false;
                 });
 
-                // Menerima data stream presisi milidetik dari laptop
                 conn.on('data', (data) => {
                     titleEl.innerText = data.title;
                     timerMainEl.innerText = data.timer;
@@ -125,7 +134,7 @@
                 });
 
                 conn.on('close', () => {
-                    statusEl.innerText = 'Koneksi Terputus.';
+                    statusEl.innerText = 'Koneksi Terputus dari Laptop.';
                     statusEl.className = 'status error';
                     btnToggle.disabled = true;
                     btnReset.disabled = true;
@@ -138,9 +147,14 @@
             });
         }
 
+        // Fungsi kirim perintah + Notifikasi Getar/Error
         function sendCommand(cmd) {
             if (conn && conn.open) {
                 conn.send(cmd);
+                // Efek getar ringan (haptic feedback) saat tombol ditekan (hanya jalan di HP)
+                if (navigator.vibrate) navigator.vibrate(50);
+            } else {
+                alert('Koneksi belum stabil atau terputus. Silakan muat ulang (Refresh) halaman HP Anda.');
             }
         }
     </script>

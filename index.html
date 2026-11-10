@@ -185,12 +185,11 @@
         <div class="modal" style="text-align: center; max-width: 400px;">
             <button class="modal-close-btn" onclick="closeQRModal()">✕</button>
             <h2>Remote HP Control</h2>
-            <p style="font-size: 0.85rem; font-weight:600; margin-bottom: 10px;">Scan QR ini dengan HP yang berada di <strong>WiFi yang sama</strong>.</p>
+            <p style="font-size: 0.85rem; font-weight:600; margin-bottom: 10px;">Scan QR ini dengan HP Anda.</p>
             
             <div class="input-field" style="text-align: left; margin-bottom: 10px;">
-                <label>URL / IP Lokal Laptop Anda:</label>
+                <label>Alamat URL / GitHub Pages Anda:</label>
                 <input type="text" id="hostUrlInput" onchange="generateQR()">
-                <small style="font-size: 0.7rem; color: #666; margin-top: 4px;">Jika URL tertulis "localhost" / "127.0.0.1", ganti manual dengan IPv4 laptop Anda (misal 192.168.1.5).</small>
             </div>
 
             <div id="qrcode"></div>
@@ -203,7 +202,6 @@
         <div class="modal">
             <button class="modal-close-btn" onclick="closeSettings()">✕</button>
             <h2>Pengaturan Timer Ukin</h2>
-            <!-- [Isi modal pengaturan sama persis dengan sebelumnya] -->
             <div class="checkbox-group"><input type="checkbox" id="enableIntervals" onchange="toggleIntervalMode()" checked><label for="enableIntervals">Gunakan Sintaks Beruntun</label></div>
             <div class="checkbox-group"><input type="checkbox" id="showTotalTimer" onchange="toggleTotalTimerVisibility()" checked><label for="showTotalTimer">Tampilkan Waktu Bawah</label></div>
             
@@ -216,10 +214,10 @@
             </div>
 
             <div id="intervalTimerSettings">
-                <label style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Daftar Sintaks:</label>
+                <label style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Daftar Sintaks / Tahapan:</label>
                 <div class="interval-list" id="intervalContainer"></div>
                 <button class="btn btn-outline" style="background:#000; color:#fff; width: 100%; font-size: 0.85rem; padding: 6px; margin-bottom: 10px;" onclick="addIntervalItem()">
-                    + Tambah Sintaks
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Tambah Sintaks
                 </button>
             </div>
             <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
@@ -260,8 +258,16 @@
         const sintaksTitleEl = document.getElementById('sintaksTitle');
         const startIconPathEl = document.getElementById('startIconPath');
 
-        // ==== LOGIKA WEBRTC / PEERJS ====
-        let peer = new Peer();
+        // ==== LOGIKA WEBRTC / PEERJS DENGAN STUN SERVERS (PERBAIKAN KONEKSI) ====
+        let peer = new Peer({
+            config: {
+                'iceServers': [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' }
+                ]
+            }
+        });
+        
         let peerId = null;
         let remoteConnection = null;
         let qrCodeInstance = null;
@@ -269,31 +275,32 @@
         peer.on('open', (id) => {
             peerId = id;
             console.log('Host Peer ID:', peerId);
-            // Siapkan default URL, otomatis ubah localhost menjadi IP placeholder jika terdeteksi
             let currentUrl = window.location.href.split('?')[0].replace('index.html', '');
-            if(currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
-                currentUrl = "http://192.168.1.X:5500/"; // Minta user edit manual
-            }
             document.getElementById('hostUrlInput').value = currentUrl;
         });
 
+        // Event saat HP berhasil menembus koneksi
         peer.on('connection', (conn) => {
-            remoteConnection = conn;
-            document.getElementById('remoteStatus').className = 'connection-status status-connected';
-            document.getElementById('remoteStatus').innerText = 'HP Terhubung! Sinkronisasi Aktif.';
-            
-            // Kirim state pertama kali
-            sendSyncData();
+            // Tunggu Data Channel terbuka sempurna
+            conn.on('open', () => {
+                remoteConnection = conn;
+                document.getElementById('remoteStatus').className = 'connection-status status-connected';
+                document.getElementById('remoteStatus').innerText = 'HP Terhubung! Sinkronisasi Aktif.';
+                sendSyncData();
+            });
 
+            // Menerima eksekusi tombol dari HP
             conn.on('data', (command) => {
                 if (command === 'TOGGLE') toggleTimer();
                 else if (command === 'RESET') resetTimer();
             });
 
             conn.on('close', () => {
-                remoteConnection = null;
-                document.getElementById('remoteStatus').className = 'connection-status status-wait';
-                document.getElementById('remoteStatus').innerText = 'Menunggu koneksi HP...';
+                if (remoteConnection === conn) {
+                    remoteConnection = null;
+                    document.getElementById('remoteStatus').className = 'connection-status status-wait';
+                    document.getElementById('remoteStatus').innerText = 'Menunggu koneksi HP...';
+                }
             });
         });
 
@@ -313,9 +320,7 @@
             document.getElementById('qrModal').classList.add('active');
             generateQR();
         }
-        function closeQRModal() {
-            document.getElementById('qrModal').classList.remove('active');
-        }
+        function closeQRModal() { document.getElementById('qrModal').classList.remove('active'); }
         function generateQR() {
             let baseUrl = document.getElementById('hostUrlInput').value;
             if(!baseUrl.endsWith('/')) baseUrl += '/';
@@ -323,22 +328,16 @@
             
             document.getElementById('qrcode').innerHTML = "";
             qrCodeInstance = new QRCode(document.getElementById("qrcode"), {
-                text: remoteUrl,
-                width: 200, height: 200,
-                colorDark : "#000000", colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
+                text: remoteUrl, width: 200, height: 200,
+                colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
             });
         }
 
         // ==== LOGIKA TIMER UTAMA ====
         async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
-            }
+            if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         }
-        function releaseWakeLock() {
-            if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null);
-        }
+        function releaseWakeLock() { if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null); }
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err=>{});
@@ -347,9 +346,7 @@
 
         function formatTime(seconds) {
             if (seconds < 0) seconds = 0;
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
+            const hrs = Math.floor(seconds / 3600); const mins = Math.floor((seconds % 3600) / 60); const secs = seconds % 60;
             return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
@@ -358,7 +355,6 @@
             totalDisplayEl.textContent = formatTime(Math.max(0, grandTotalSeconds));
             document.title = `${formatTime(Math.max(0, totalSeconds))} - Timer Sukses Ukin`;
             
-            // Kirim data real-time ke HP setiap DOM update
             sendSyncData();
 
             const overlay = document.getElementById('countdownOverlay');
@@ -383,14 +379,12 @@
                 requestWakeLock();
                 const now = Date.now();
                 if (remainingIntervalMs > 0 || remainingTotalMs > 0) {
-                    targetEndTimeInterval = now + remainingIntervalMs;
-                    targetEndTimeGrandTotal = now + remainingTotalMs;
+                    targetEndTimeInterval = now + remainingIntervalMs; targetEndTimeGrandTotal = now + remainingTotalMs;
                 } else {
-                    targetEndTimeInterval = now + (totalSeconds * 1000);
-                    targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
+                    targetEndTimeInterval = now + (totalSeconds * 1000); targetEndTimeGrandTotal = now + (grandTotalSeconds * 1000);
                 }
                 countdown = setInterval(tick, 100);
-                sendSyncData(); // Paksa sync saat state isRunning berubah
+                sendSyncData();
             }
         }
 
@@ -402,8 +396,7 @@
 
             if (isIntervalMode) {
                 while (totalSeconds <= 0 && currentIntervalIndex < intervals.length - 1) {
-                    currentIntervalIndex++;
-                    const item = intervals[currentIntervalIndex];
+                    currentIntervalIndex++; const item = intervals[currentIntervalIndex];
                     const nextDuration = (item.h * 3600) + (item.m * 60) + item.s;
                     targetEndTimeInterval += (nextDuration * 1000);
                     sintaksTitleEl.textContent = item.name;
@@ -413,11 +406,8 @@
             updateDisplay();
 
             if (grandTotalSeconds <= 0 && totalSeconds <= 0) {
-                clearInterval(countdown);
-                isRunning = false;
-                startIconPathEl.setAttribute('d', playIconPath); 
-                releaseWakeLock(); 
-                sendSyncData();
+                clearInterval(countdown); isRunning = false;
+                startIconPathEl.setAttribute('d', playIconPath); releaseWakeLock(); sendSyncData();
             }
         }
 
@@ -435,8 +425,7 @@
             tick();
             if (!wasRunning) {
                 isRunning = false; const now = Date.now();
-                remainingIntervalMs = targetEndTimeInterval - now; remainingTotalMs = targetEndTimeGrandTotal - now;
-                updateDisplay();
+                remainingIntervalMs = targetEndTimeInterval - now; remainingTotalMs = targetEndTimeGrandTotal - now; updateDisplay();
             }
         }
 
@@ -444,8 +433,7 @@
             clearInterval(countdown); isRunning = false;
             startIconPathEl.setAttribute('d', playIconPath); releaseWakeLock(); 
             const now = Date.now();
-            remainingIntervalMs = targetEndTimeInterval - now; remainingTotalMs = targetEndTimeGrandTotal - now;
-            sendSyncData();
+            remainingIntervalMs = targetEndTimeInterval - now; remainingTotalMs = targetEndTimeGrandTotal - now; sendSyncData();
         }
 
         function resetTimer() {
@@ -455,21 +443,16 @@
             if (isIntervalMode) {
                 currentIntervalIndex = 0; calculateGrandTotalFromIntervals(); loadIntervalSintaks(currentIntervalIndex);
             } else {
-                const h = parseInt(document.getElementById('hours').value) || 0;
-                const m = parseInt(document.getElementById('minutes').value) || 0;
-                const s = parseInt(document.getElementById('seconds').value) || 0;
+                const h = parseInt(document.getElementById('hours').value) || 0; const m = parseInt(document.getElementById('minutes').value) || 0; const s = parseInt(document.getElementById('seconds').value) || 0;
                 totalSeconds = (h * 3600) + (m * 60) + s; grandTotalSeconds = totalSeconds;
                 sintaksTitleEl.textContent = "TIMER UKIN"; updateDisplay();
             }
             sendSyncData();
         }
 
-        function calculateGrandTotalFromIntervals() {
-            grandTotalSeconds = intervals.reduce((acc, item) => acc + (item.h * 3600) + (item.m * 60) + item.s, 0);
-        }
+        function calculateGrandTotalFromIntervals() { grandTotalSeconds = intervals.reduce((acc, item) => acc + (item.h * 3600) + (item.m * 60) + item.s, 0); }
         function loadIntervalSintaks(index) {
-            const item = intervals[index];
-            totalSeconds = (item.h * 3600) + (item.m * 60) + item.s;
+            const item = intervals[index]; totalSeconds = (item.h * 3600) + (item.m * 60) + item.s;
             sintaksTitleEl.textContent = item.name; updateDisplay();
         }
 
@@ -485,8 +468,7 @@
         document.addEventListener('keydown', (e) => {
             const isInput = document.activeElement.tagName === 'INPUT';
             if (document.getElementById('modalOverlay').classList.contains('active') || document.getElementById('qrModal').classList.contains('active')) {
-                if (e.key === 'Escape') { closeSettings(); closeQRModal(); }
-                return; 
+                if (e.key === 'Escape') { closeSettings(); closeQRModal(); } return; 
             }
             if (isInput) return;
             if (e.code === 'Space') { e.preventDefault(); toggleTimer(); } 
@@ -500,9 +482,7 @@
             document.getElementById('singleTimerSettings').style.display = checked ? 'none' : 'block';
             document.getElementById('intervalTimerSettings').style.display = checked ? 'block' : 'none';
         }
-        function toggleTotalTimerVisibility() {
-            document.getElementById('sectionTotal').style.display = document.getElementById('showTotalTimer').checked ? 'flex' : 'none';
-        }
+        function toggleTotalTimerVisibility() { document.getElementById('sectionTotal').style.display = document.getElementById('showTotalTimer').checked ? 'flex' : 'none'; }
         function renderIntervalInputs() {
             const container = document.getElementById('intervalContainer'); container.innerHTML = '';
             intervals.forEach((item, idx) => {
