@@ -24,16 +24,16 @@
             position: relative;
         }
 
-        /* Tombol Fullscreen Pojok Kanan Atas */
+        /* Tombol Fullscreen Pojok Kanan Atas (Diperkecil) */
         .fullscreen-btn {
             position: absolute;
             top: 2vh;
             right: 2vw;
-            width: 44px;
-            height: 44px;
+            width: 32px; /* Lebih kecil */
+            height: 32px; /* Lebih kecil */
             background: transparent;
             border: 2px solid #000000;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -49,8 +49,8 @@
         }
 
         .fullscreen-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 16px; /* Ikon lebih kecil */
+            height: 16px;
             fill: #000000;
             transition: fill 0.3s ease;
         }
@@ -76,7 +76,7 @@
             padding: 1vh 2vw;
         }
 
-        /* Judul Sintaks Diperbesar (6.5vw) */
+        /* Judul Sintaks Diperbesar */
         .sintaks-title {
             font-size: 6.5vw;
             font-weight: 900;
@@ -103,7 +103,7 @@
             border-top: 4px solid #000000;
         }
 
-        /* Ukuran Angka Timer Atas Lebih Besar (16vw) */
+        /* Ukuran Angka Timer Atas Lebih Besar */
         #display {
             font-size: 16vw;
             font-weight: 900;
@@ -114,7 +114,7 @@
             width: 100%;
         }
 
-        /* Ukuran Angka Timer Bawah (13vw) */
+        /* Ukuran Angka Timer Bawah */
         #totalDisplay {
             font-size: 13vw;
             font-weight: 900;
@@ -125,13 +125,13 @@
             width: 100%;
         }
 
-        /* Tombol Floating Kontrol & Pengaturan (Pojok Kanan Bawah) */
+        /* Tombol Floating Kontrol (Tanpa Huruf, Diperkecil) */
         .floating-controls {
             position: absolute;
             bottom: 1.5vh;
             right: 2vw;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             z-index: 50; 
             opacity: 0.2;
             transition: opacity 0.3s ease;
@@ -142,20 +142,17 @@
         }
 
         .btn {
-            padding: 0 14px;
-            height: 38px;
-            min-width: 44px;
-            font-size: 1rem;
-            font-weight: 800;
+            width: 32px; /* Lebih kecil */
+            height: 32px; /* Lebih kecil */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border: 2px solid #ffffff;
             background-color: #ffffff;
             color: #000000;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .btn-outline {
@@ -167,24 +164,28 @@
         .btn:hover {
             background-color: #dddddd;
             color: #000000;
-            border-color: #dddddd;
         }
 
         .btn-outline:hover {
             background-color: #ffffff;
             color: #000000;
-            border-color: #ffffff;
         }
 
         .btn:active {
             transform: scale(0.92);
         }
 
-        /* Penyesuaian Ikon pada Tombol */
+        /* Styling Simbol/SVG di dalam Tombol (Diperkecil) */
         .btn svg {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             fill: currentColor;
+        }
+
+        .btn-text {
+            font-size: 0.8rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
         }
 
         /* Layer Hitung Mundur & Banner Selesai */
@@ -256,7 +257,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        /* Tombol X Tutup Modal */
         .modal-close-btn {
             position: absolute;
             top: 16px;
@@ -407,25 +407,23 @@
         <div id="totalDisplay">01:14:00</div>
     </div>
 
+    <!-- Tombol Simbol & Angka (Diperkecil) -->
     <div class="floating-controls">
-        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Detik">-10</button>
-        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Detik">-5</button>
-        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Detik">+5</button>
-        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Detik">+10</button>
+        <button class="btn btn-outline" onclick="adjustTime(-10)" title="Kurangi 10 Detik"><span class="btn-text">-10</span></button>
+        <button class="btn btn-outline" onclick="adjustTime(-5)" title="Kurangi 5 Detik"><span class="btn-text">-5</span></button>
+        <button class="btn btn-outline" onclick="adjustTime(5)" title="Tambah 5 Detik"><span class="btn-text">+5</span></button>
+        <button class="btn btn-outline" onclick="adjustTime(10)" title="Tambah 10 Detik"><span class="btn-text">+10</span></button>
         
-        <button class="btn" id="startBtn" onclick="toggleTimer()" title="Mulai / Jeda">
-            <!-- Ikon Play Bawaan -->
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <button class="btn" id="startBtn" onclick="toggleTimer()" title="Mulai / Jeda (Spasi)">
+            <svg viewBox="0 0 24 24"><path id="startIconPath" d="M8 5v14l11-7z"/></svg>
         </button>
         
-        <button class="btn btn-outline" onclick="resetTimer()" title="Reset Waktu">
-            <!-- Ikon Refresh/Reset -->
-            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        <button class="btn btn-outline" onclick="resetTimer()" title="Reset (Tekan R)">
+            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1 12H11V8h2v9z"/></svg>
         </button>
         
-        <button class="btn btn-outline" onclick="openSettings()" title="Pengaturan">
-            <!-- Ikon Gear/Pengaturan -->
-            <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 C13.73,21.83,13.93,22,14.17,22h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+        <button class="btn btn-outline" onclick="openSettings()" title="Pengaturan (Tekan P)">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
         </button>
     </div>
     
@@ -434,6 +432,7 @@
         <div class="countdown-number" id="countdownNumber">10</div>
     </div>
 
+    <!-- Modal Pengaturan -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <button class="modal-close-btn" onclick="closeSettings()" title="Tutup Pengaturan">✕</button>
@@ -469,11 +468,13 @@
             <div id="intervalTimerSettings">
                 <label style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Daftar Sintaks / Tahapan:</label>
                 <div class="interval-list" id="intervalContainer"></div>
-                <button class="btn btn-outline" style="background:#000; color:#fff; width: 100%; font-size: 0.85rem; padding: 6px;" onclick="addIntervalItem()">+ Tambah Sintaks</button>
+                <button class="btn btn-outline" style="background:#000; color:#fff; width: 100%; font-size: 0.85rem; padding: 6px; margin-bottom: 10px;" onclick="addIntervalItem()">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Tambah Sintaks
+                </button>
             </div>
 
-            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="btn" style="background:#000; color:#fff;" onclick="saveSettings()">Simpan & Terapkan</button>
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn" style="background:#000; color:#fff; width:auto; padding: 8px 16px;" onclick="saveSettings()">Simpan & Terapkan</button>
             </div>
         </div>
     </div>
@@ -493,10 +494,10 @@
         let remainingTotalMs = 0;
 
         let wakeLock = null; 
-        
-        // Kumpulan Ikon Play & Pause (Bentuk SVG)
-        const iconPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-        const iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+        // Ikon Play dan Pause (SVG Path)
+        const playIconPath = "M8 5v14l11-7z";
+        const pauseIconPath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 
         let intervals = [
             { name: "Salam, lagu nasional, kehadiran, kerapihan, icebreaking, apersepsi, tujuan pembelajaran", h: 0, m: 9, s: 0 },
@@ -512,17 +513,15 @@
         const displayEl = document.getElementById('display');
         const totalDisplayEl = document.getElementById('totalDisplay');
         const sintaksTitleEl = document.getElementById('sintaksTitle');
-        const startBtn = document.getElementById('startBtn');
+        const startIconPathEl = document.getElementById('startIconPath');
         const modalOverlay = document.getElementById('modalOverlay');
         const sectionTotal = document.getElementById('sectionTotal');
         const fullscreenIcon = document.getElementById('fullscreenIcon');
 
-        // ==== FITUR SCREEN WAKE LOCK (ANTI-SLEEP) ====
         async function requestWakeLock() {
             if ('wakeLock' in navigator) {
                 try {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Layar Anti-Sleep Aktif!');
                 } catch (err) {
                     console.error('Wake Lock gagal:', err);
                 }
@@ -533,11 +532,9 @@
             if (wakeLock !== null) {
                 wakeLock.release().then(() => {
                     wakeLock = null;
-                    console.log('Layar Anti-Sleep Dimatikan');
                 });
             }
         }
-        // =============================================
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
@@ -570,7 +567,6 @@
             totalDisplayEl.textContent = formatTime(Math.max(0, grandTotalSeconds));
             document.title = `${formatTime(Math.max(0, totalSeconds))} - Timer Sukses Ukin`;
             
-            // Logika Menampilkan Layar Hitung Mundur 10 Detik Terakhir dan Banner Selesai
             const overlay = document.getElementById('countdownOverlay');
             const numEl = document.getElementById('countdownNumber');
             
@@ -600,11 +596,8 @@
                 if (totalSeconds <= 0 && grandTotalSeconds <= 0) return;
 
                 isRunning = true;
-                
-                // Ubah Icon Menjadi Pause
-                startBtn.innerHTML = iconPause;
+                startIconPathEl.setAttribute('d', pauseIconPath); 
 
-                // Meminta layar agar tidak mati/sleep saat timer jalan
                 requestWakeLock();
 
                 const now = Date.now();
@@ -647,8 +640,8 @@
             if (grandTotalSeconds <= 0 && totalSeconds <= 0) {
                 clearInterval(countdown);
                 isRunning = false;
-                startBtn.innerHTML = iconPlay;
-                releaseWakeLock();
+                startIconPathEl.setAttribute('d', playIconPath); 
+                releaseWakeLock(); 
             }
         }
 
@@ -684,10 +677,7 @@
         function pauseTimer() {
             clearInterval(countdown);
             isRunning = false;
-            
-            // Ubah Icon Menjadi Play
-            startBtn.innerHTML = iconPlay;
-            
+            startIconPathEl.setAttribute('d', playIconPath); 
             releaseWakeLock(); 
             
             const now = Date.now();
@@ -698,8 +688,7 @@
         function resetTimer() {
             clearInterval(countdown);
             isRunning = false;
-            
-            startBtn.innerHTML = iconPlay;
+            startIconPathEl.setAttribute('d', playIconPath); 
             releaseWakeLock(); 
             
             remainingIntervalMs = 0;
@@ -760,7 +749,7 @@
                 if (e.key === 'Escape') {
                     closeSettings();
                 }
-                return;
+                return; // Hindari membuka pengaturan lagi jika modal sedang aktif
             }
 
             if (isInput) return;
@@ -774,6 +763,9 @@
             } else if (e.key.toLowerCase() === 'r') {
                 e.preventDefault();
                 resetTimer();
+            } else if (e.key.toLowerCase() === 'p') {
+                e.preventDefault();
+                openSettings(); // SHORTCUT UNTUK PENGATURAN
             }
         });
 
